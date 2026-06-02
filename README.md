@@ -24,7 +24,7 @@ This repository hosts three primary components:
 
 *   **Tutor for All Platform**: A full-stack (Node.js/Express + Vanilla HTML/CSS/JS) online education platform that manages student registrations, class scheduling, interactive learning assessments, support chat, and mock payment flows.
 *   **Disaster Weather Module**: An integrated module in the backend (`/api/weather` and `/disaster`) featuring a Mock Machine Learning prediction engine to assess disaster probability based on real-time weather parameters.
-*   **Social Media Usage Analysis Dashboard**: A standalone, premium frontend dashboard analyzing screen time, platform preferences, mental health effects, and demographics with modern chart visuals and data filtering.
+*   **Social Media Usage Analysis Dashboard**: A standalone, premium HTML/Chart.js dashboard alongside a fully integrated **AI Social Media Usage Analysis System** (Streamlit + Machine Learning) to predict addiction risk, analyze user sentiment, and run deep demographic correlations.
 
 ---
 
@@ -141,9 +141,11 @@ To host the interactive Social Media Dashboard online for free:
 *   **Real-time Monitoring**: Fetches actual conditions using OpenWeather API. If no API key is specified, it gracefully degrades to a simulated sensor data engine.
 *   **Predictive ML Model**: Uses custom algorithms in `mlEngine.js` to estimate threat levels for extreme events (Cyclones, Floods, Heatwaves) based on parameters like wind speed, humidity, and temperature.
 
-### 3. Social Media Usage Analysis Dashboard
-*   **Dynamic Visualizations**: Utilizes Chart.js to render bubble charts, multi-line charts, platform distribution donuts, and horizontal bar charts.
-*   **Multi-Attribute Filters**: Allows real-time filtering of demographic datasets by age groups, gender, and platform preferences.
+### 3. Social Media Usage Analysis Dashboard & ML System
+*   **Standalone Premium Frontend**: Utilizes Chart.js to render bubble charts, multi-line charts, platform distribution donuts, and horizontal bar charts.
+*   **Interactive Streamlit & ML App**: Implements an advanced Machine Learning suite to train models (Random Forest, Gradient Boosting, Logistic Regression) on the fly and compare their cross-validation accuracies, ROC curves, feature importances, and confusion matrices.
+*   **Live Sentiment Analytics**: Uses TextBlob to classify simulated emotional feedback and sentiment polarity per platform.
+*   **Addiction Risk Predictor**: Allows users to input usage variables (hours, sessions, notifications, sleep, etc.) to get an instant addiction risk percentage and personalized healthy habit recommendations.
 
 ---
 
