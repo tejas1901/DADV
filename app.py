@@ -1,694 +1,677 @@
-# =========================================================
-# AI SOCIAL MEDIA USAGE ANALYSIS SYSTEM — ADVANCED
-# Mini Project | Python + Streamlit + ML
-#
-# Install:
-# pip install pandas numpy matplotlib seaborn scikit-learn textblob streamlit plotly
-#
-# Run:
-# streamlit run social_media_analysis.py
-# =========================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Usage Analysis Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-import seaborn as sns
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import (
-    accuracy_score, classification_report, confusion_matrix, roc_curve, auc
-)
-from textblob import TextBlob
-import warnings
-warnings.filterwarnings("ignore")
-
-# ─────────────────────────────────────────────
-# PAGE CONFIG & LIGHT THEME
-# ─────────────────────────────────────────────
-
-st.set_page_config(
-    page_title="Social Media Analysis",
-    page_icon="📱",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# Light theme CSS
-st.markdown("""
 <style>
-    /* Force light background */
-    .stApp { background-color: #f5f7fa; color: #1a1a2e; }
-    .block-container { padding: 1.5rem 2rem 2rem 2rem; }
+  :root {
+    --bg:       #F4F2EC;
+    --surface:  #FFFFFF;
+    --border:   rgba(0,0,0,0.08);
+    --dark:     #1A1A18;
+    --muted:    #888780;
+    --accent:   #7F77DD;
+    --tiktok:   #7F77DD;
+    --insta:    #1D9E75;
+    --youtube:  #D85A30;
+    --twitter:  #378ADD;
+    --facebook: #73726c;
+    --red:      #E24B4A;
+    --amber:    #BA7517;
+    --green:    #639922;
+    --radius:   12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    min-height: 100vh;
+  }
 
-    /* Card style for metrics */
-    div[data-testid="metric-container"] {
-        background: white;
-        border-radius: 12px;
-        padding: 18px 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-        border-left: 4px solid #4f8ef7;
-    }
+  /* ── Header ── */
+  header {
+    background: var(--dark);
+    color: #fff;
+    padding: 2.2rem 2.5rem 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+  }
+  header h1 { font-family: 'DM Serif Display', serif; font-size: 2rem; font-weight: 400; line-height: 1.1; }
+  header h1 span { color: var(--accent); }
+  .header-meta { text-align: right; }
+  .header-meta p { font-size: 13px; opacity: 0.55; line-height: 1.7; }
+  .header-meta .n { font-size: 2rem; font-weight: 600; color: var(--accent); line-height: 1; }
 
-    /* Section headers */
-    h2 { color: #1a1a2e !important; border-bottom: 2px solid #4f8ef7; padding-bottom: 6px; }
-    h3 { color: #2d2d5e !important; }
+  /* ── KPI row ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .kpi {
+    background: var(--surface);
+    padding: 1.4rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; }
+  .kpi-value { font-size: 2.2rem; font-weight: 600; color: var(--dark); line-height: 1; }
+  .kpi-sub   { font-size: 12px; color: var(--muted); }
 
-    /* Sidebar */
-    section[data-testid="stSidebar"] {
-        background: #ffffff;
-        border-right: 1px solid #e0e4ea;
-    }
+  /* ── Layout ── */
+  main { padding: 1.8rem 2rem; display: grid; gap: 1.2rem; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
+  .row-wide { display: grid; grid-template-columns: 2fr 1fr; gap: 1.2rem; }
 
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
-    .stTabs [data-baseweb="tab"] {
-        background: #e9eef6;
-        border-radius: 8px 8px 0 0;
-        padding: 6px 18px;
-        color: #333;
-        font-weight: 500;
-    }
-    .stTabs [aria-selected="true"] {
-        background: #4f8ef7 !important;
-        color: white !important;
-    }
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1.25rem 1.4rem;
+  }
+  .card-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .chart-wrap { position: relative; }
 
-    /* Buttons */
-    div.stButton > button {
-        background: #4f8ef7;
-        color: white;
-        border-radius: 8px;
-        border: none;
-        padding: 8px 22px;
-        font-weight: 600;
-        width: 100%;
-    }
-    div.stButton > button:hover { background: #2d6fd6; }
+  /* ── Legend ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .dot-circle { border-radius: 50%; }
 
-    /* Slider label */
-    label { color: #333 !important; font-weight: 500; }
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 6px; margin-bottom: 1rem; }
+  .tab {
+    font-size: 12px; padding: 5px 14px; border-radius: 99px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .tab.active, .tab:hover {
+    background: var(--dark); color: #fff; border-color: var(--dark);
+  }
 
-    /* Dataframe */
-    .dataframe { font-size: 13px; }
+  /* ── Horizontal bar chart ── */
+  .hbar { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .hbar-label { width: 110px; font-size: 12px; color: var(--muted); text-align: right; flex-shrink: 0; }
+  .hbar-track { flex: 1; height: 18px; background: #F0EFE9; border-radius: 4px; overflow: hidden; }
+  .hbar-fill  { height: 100%; border-radius: 4px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+  .hbar-val   { width: 40px; font-size: 12px; color: var(--muted); }
 
-    /* Success / warning / error */
-    .stSuccess, .stInfo, .stWarning, .stError {
-        border-radius: 10px !important;
-    }
+  /* ── Insights pills ── */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; padding: 5px 12px; border-radius: 99px;
+    border: 1px solid transparent;
+  }
+  .pill-r  { background: #FDEEED; color: #8B2020; border-color: #F5C5C5; }
+  .pill-a  { background: #FEF4E6; color: #7A4200; border-color: #F9D89C; }
+  .pill-g  { background: #EDF6E1; color: #2D5A0E; border-color: #C3E29D; }
+  .pill-b  { background: #EAF3FD; color: #0B3F74; border-color: #AED4F5; }
+
+  /* ── Mood grid ── */
+  .mood-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .mood-box  { border-radius: 8px; padding: 12px 6px; text-align: center; }
+  .mood-icon { font-size: 22px; }
+  .mood-pct  { font-size: 17px; font-weight: 600; margin-top: 4px; }
+  .mood-lbl  { font-size: 10px; margin-top: 2px; opacity: 0.7; }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .filter-bar label { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .filter-bar select {
+    font-size: 12px; padding: 5px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg);
+    color: var(--dark); font-family: inherit; cursor: pointer;
+  }
+  .filter-btn {
+    font-size: 12px; padding: 5px 16px; border-radius: 6px;
+    border: 1px solid var(--dark); background: var(--dark);
+    color: #fff; font-family: inherit; cursor: pointer;
+  }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 6px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+  tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  tbody tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+
+  footer { text-align: center; padding: 2rem; font-size: 12px; color: var(--muted); }
 </style>
-""", unsafe_allow_html=True)
+</head>
+<body>
 
-# ─────────────────────────────────────────────
-# HEADER
-# ─────────────────────────────────────────────
+<header>
+  <div>
+    <h1>Social Media<br><span>Usage Analysis</span></h1>
+    <p style="margin-top:8px;font-size:13px;opacity:0.5">Screen time · Platforms · Demographics · Mental Health</p>
+  </div>
+  <div class="header-meta">
+    <div class="n">2,400</div>
+    <p>respondents<br>mock dataset · 2024</p>
+  </div>
+</header>
 
-st.markdown("# 📱 AI Social Media Usage Analysis System")
-st.markdown(
-    "**An intelligent dashboard to analyse screen time, detect addiction risk, "
-    "understand productivity impact, and predict user behaviour using Machine Learning.**"
-)
-st.markdown("---")
+<!-- KPI Row -->
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-label">Avg daily usage</div>
+    <div class="kpi-value">6.4h</div>
+    <div class="kpi-sub">↑ 18 min vs last year</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Sessions / day</div>
+    <div class="kpi-value">27</div>
+    <div class="kpi-sub">avg per user</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Top platform</div>
+    <div class="kpi-value" style="color:var(--tiktok)">TikTok</div>
+    <div class="kpi-sub">34% of total time</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Report anxiety</div>
+    <div class="kpi-value" style="color:var(--red)">61%</div>
+    <div class="kpi-sub">heavy users (6h+)</div>
+  </div>
+</div>
 
-# ─────────────────────────────────────────────
-# DATA GENERATION
-# ─────────────────────────────────────────────
+<main>
 
-@st.cache_data
-def generate_data(n=500, seed=42):
-    np.random.seed(seed)
-    platforms  = ["Instagram", "YouTube", "Twitter", "Facebook", "LinkedIn", "TikTok"]
-    age_groups = ["Teen (13-17)", "Young Adult (18-25)", "Adult (26-35)", "Senior (36+)"]
-    genders    = ["Male", "Female", "Non-binary"]
-    occupations = ["Student", "Professional", "Freelancer", "Unemployed"]
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <label>Filter by:</label>
+    <label>Age group
+      <select id="f-age" style="margin-left:6px">
+        <option value="all">All ages</option>
+        <option>13–17</option><option>18–24</option><option>25–34</option>
+        <option>35–44</option><option>45–54</option><option>55+</option>
+      </select>
+    </label>
+    <label>Gender
+      <select id="f-gender" style="margin-left:6px">
+        <option value="all">All genders</option>
+        <option>Female</option><option>Male</option><option>Non-binary</option>
+      </select>
+    </label>
+    <label>Platform
+      <select id="f-platform" style="margin-left:6px">
+        <option value="all">All platforms</option>
+        <option>TikTok</option><option>Instagram</option>
+        <option>YouTube</option><option>Twitter/X</option><option>Facebook</option>
+      </select>
+    </label>
+    <button class="filter-btn" onclick="applyFilters()">Apply</button>
+    <button class="filter-btn" style="background:transparent;color:var(--dark)" onclick="resetFilters()">Reset</button>
+    <span id="filter-count" style="font-size:12px;color:var(--muted);margin-left:auto"></span>
+  </div>
 
-    ages = np.random.randint(13, 45, n)
-    usage = np.round(np.random.uniform(0.5, 12, n), 2)
-    sleep = np.round(np.random.normal(6.8, 1.2, n).clip(3, 10), 1)
-    productivity = np.clip(np.round(10 - usage * 0.6 + np.random.normal(0, 1.5, n)), 1, 10).astype(int)
-    notifications = np.random.randint(10, 400, n)
-    likes    = np.random.randint(5, 600, n)
-    comments = np.random.randint(0, 150, n)
-    messages = np.random.randint(5, 350, n)
-    sessions = np.random.randint(1, 25, n)
+  <!-- Row 1: line chart + doughnut -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-title">Daily screen time by platform — week average (hours)</div>
+      <div class="legend">
+        <div class="legend-item"><span class="dot" style="background:var(--tiktok)"></span>TikTok</div>
+        <div class="legend-item"><span class="dot" style="background:var(--insta)"></span>Instagram</div>
+        <div class="legend-item"><span class="dot" style="background:var(--youtube)"></span>YouTube</div>
+        <div class="legend-item"><span class="dot" style="background:var(--twitter)"></span>Twitter/X</div>
+        <div class="legend-item"><span class="dot" style="background:var(--facebook)"></span>Facebook</div>
+      </div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="lineChart" role="img" aria-label="Line chart of daily screen time per platform. TikTok leads throughout the week.">TikTok leads; Instagram second. Weekend usage spikes for all platforms.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Platform share of total usage time</div>
+      <div id="donut-legend" class="legend" style="margin-bottom:14px"></div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="donutChart" role="img" aria-label="Doughnut chart: TikTok 34%, Instagram 26%, YouTube 19%, Twitter 12%, Facebook 9%.">TikTok 34%, Instagram 26%, YouTube 19%, Twitter 12%, Facebook 9%.</canvas>
+      </div>
+    </div>
+  </div>
 
-    df = pd.DataFrame({
-        "Age": ages,
-        "Age_Group": pd.cut(
-            ages,
-            bins=[12, 17, 25, 35, 100],
-            labels=age_groups
-        ).astype(str),
-        "Gender": np.random.choice(genders, n),
-        "Occupation": np.random.choice(occupations, n),
-        "Platform": np.random.choice(platforms, n),
-        "Daily_Usage_Hours": usage,
-        "Sessions_Per_Day": sessions,
-        "Posts_Liked_Per_Day": likes,
-        "Comments_Per_Day": comments,
-        "Messages_Sent": messages,
-        "Notifications_Received": notifications,
-        "Sleep_Hours": sleep,
-        "Productivity_Score": productivity,
-    })
+  <!-- Row 2: age bars + gender platform + mood -->
+  <div class="row3">
+    <div class="card">
+      <div class="card-title">Avg daily usage by age group</div>
+      <div id="age-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Platform preference by gender (%)</div>
+      <div class="legend">
+        <div class="legend-item"><span class="dot" style="background:#993356"></span>Female</div>
+        <div class="legend-item"><span class="dot" style="background:#0F6E56"></span>Male</div>
+        <div class="legend-item"><span class="dot" style="background:#854F0B"></span>Non-binary</div>
+      </div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="genderChart" role="img" aria-label="Grouped bar chart of platform preference split by gender.">Females prefer Instagram; males prefer YouTube; non-binary users prefer Twitter.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Mood self-report after use</div>
+      <div class="mood-grid">
+        <div class="mood-box" style="background:#EDF6E1">
+          <div class="mood-icon">😊</div>
+          <div class="mood-pct" style="color:#2D5A0E">24%</div>
+          <div class="mood-lbl">Happy</div>
+        </div>
+        <div class="mood-box" style="background:#EAF3FD">
+          <div class="mood-icon">😐</div>
+          <div class="mood-pct" style="color:#0B3F74">31%</div>
+          <div class="mood-lbl">Neutral</div>
+        </div>
+        <div class="mood-box" style="background:#FEF4E6">
+          <div class="mood-icon">😟</div>
+          <div class="mood-pct" style="color:#7A4200">22%</div>
+          <div class="mood-lbl">Anxious</div>
+        </div>
+        <div class="mood-box" style="background:#FDEEED">
+          <div class="mood-icon">😔</div>
+          <div class="mood-pct" style="color:#8B2020">15%</div>
+          <div class="mood-lbl">Sad</div>
+        </div>
+        <div class="mood-box" style="background:#F4F2EC">
+          <div class="mood-icon">😴</div>
+          <div class="mood-pct" style="color:#444">8%</div>
+          <div class="mood-lbl">Tired</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    # Addiction score
-    df["Addiction_Score"] = np.clip(
-        df["Daily_Usage_Hours"] * 2
-        + df["Posts_Liked_Per_Day"] / 60
-        + df["Messages_Sent"] / 50
-        + df["Sessions_Per_Day"] * 0.3
-        - df["Sleep_Hours"] * 0.8,
-        0, 30
-    ).round(2)
+  <!-- Row 3: mental health full-width -->
+  <div class="card">
+    <div class="card-title">Mental health & productivity — impact vs usage intensity</div>
+    <div class="pills">
+      <span class="pill pill-r">⚠ Heavy users (6h+): 61% report anxiety</span>
+      <span class="pill pill-a">🌙 Late-night use linked to poor sleep: 74%</span>
+      <span class="pill pill-g">🌱 Light users (≤2h): 78% rate wellbeing good+</span>
+      <span class="pill pill-b">📉 Productivity drops 22% above 4h/day</span>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="dot" style="background:var(--red)"></span>Anxiety / stress</div>
+      <div class="legend-item"><span class="dot" style="background:var(--amber)"></span>Poor sleep</div>
+      <div class="legend-item"><span class="dot" style="background:var(--green)"></span>Feels connected</div>
+      <div class="legend-item"><span class="dot" style="background:var(--twitter)"></span>Productivity loss</div>
+    </div>
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="mhChart" role="img" aria-label="Multi-line chart: anxiety, poor sleep, and productivity loss all rise with usage hours. Feeling connected declines.">All negative indicators increase sharply above 4h/day.</canvas>
+    </div>
+  </div>
 
-    df["Addiction_Level"] = pd.cut(
-        df["Addiction_Score"],
-        bins=[-1, 10, 18, 30],
-        labels=["Low", "Moderate", "High"]
-    )
-    df["Addicted"] = np.where(df["Addiction_Score"] > 18, 1, 0)
+  <!-- Row 4: platform table + peak hours -->
+  <div class="row-wide">
+    <div class="card">
+      <div class="card-title">Platform comparison — key metrics</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Share</th>
+            <th>Avg session</th>
+            <th>Anxiety rate</th>
+            <th>Primary users</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge" style="background:#EEEDFE;color:#534AB7">TikTok</span></td>
+            <td>34%</td><td>8.2 min</td>
+            <td><span style="color:var(--red);font-weight:500">High</span></td>
+            <td>18–24</td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:#E1F5EE;color:#0F6E56">Instagram</span></td>
+            <td>26%</td><td>11.4 min</td>
+            <td><span style="color:var(--amber);font-weight:500">Medium</span></td>
+            <td>18–34, Female</td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:#FAECE7;color:#993C1D">YouTube</span></td>
+            <td>19%</td><td>22.7 min</td>
+            <td><span style="color:var(--green);font-weight:500">Low</span></td>
+            <td>18–34, Male</td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:#E6F1FB;color:#185FA5">Twitter/X</span></td>
+            <td>12%</td><td>6.8 min</td>
+            <td><span style="color:var(--amber);font-weight:500">Medium</span></td>
+            <td>25–44</td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:#F1EFE8;color:#5F5E5A">Facebook</span></td>
+            <td>9%</td><td>14.1 min</td>
+            <td><span style="color:var(--green);font-weight:500">Low</span></td>
+            <td>35–55+</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Peak usage hours (avg sessions)</div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="peakChart" role="img" aria-label="Bar chart of average session count per hour. Peak at 9 PM.">Peak usage at 9 PM (21:00).</canvas>
+      </div>
+    </div>
+  </div>
 
-    # Screen health score (0-100)
-    df["Screen_Health_Score"] = np.clip(
-        100
-        - df["Daily_Usage_Hours"] * 6
-        + df["Sleep_Hours"] * 3
-        + df["Productivity_Score"] * 1.5,
-        0, 100
-    ).round(1)
+  <!-- Row 5: reasons + sessions scatter -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-title">Top reasons for using social media</div>
+      <div id="reason-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Usage intensity by age (sessions vs hours)</div>
+      <div class="legend" id="scatter-legend"></div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="scatterChart" role="img" aria-label="Bubble chart showing sessions per day vs daily hours, sized by user count, coloured by age group.">Younger users cluster at high hours and high sessions.</canvas>
+      </div>
+    </div>
+  </div>
 
-    # Sample sentiments
-    posts = [
-        "I love spending time on social media!",
-        "Feeling drained from endless scrolling.",
-        "Great content today, feeling inspired!",
-        "Sad and anxious after checking my feed.",
-        "Learned something new today online.",
-        "People are so negative these days.",
-        "Connected with old friends, feeling happy!",
-        "Can't stop using my phone, it's a problem.",
-    ]
-    df["User_Post"] = np.random.choice(posts, n)
-    df["Sentiment"] = df["User_Post"].apply(
-        lambda t: "Positive" if TextBlob(t).sentiment.polarity > 0
-        else ("Negative" if TextBlob(t).sentiment.polarity < 0 else "Neutral")
-    )
-    df["Polarity"] = df["User_Post"].apply(lambda t: round(TextBlob(t).sentiment.polarity, 3))
+</main>
 
-    return df
+<footer>Social Media Usage Analysis Dashboard · Mock dataset for academic/project demonstration · 2024</footer>
 
-df = generate_data()
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const PLATFORMS = ["TikTok","Instagram","YouTube","Twitter/X","Facebook"];
+const PCOLORS   = ["#7F77DD","#1D9E75","#D85A30","#378ADD","#73726c"];
+const DAYS      = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const AGE_ORDER = ["13–17","18–24","25–34","35–44","45–54","55+"];
+const AGE_COLORS= ["#E24B4A","#D85A30","#BA7517","#7F77DD","#1D9E75","#378ADD"];
 
-# ─────────────────────────────────────────────
-# SIDEBAR FILTERS
-# ─────────────────────────────────────────────
+const lineData = {
+  TikTok:    [2.20,2.10,2.30,2.40,2.50,2.80,2.60],
+  Instagram: [1.60,1.50,1.70,1.70,1.80,2.10,1.90],
+  YouTube:   [1.10,1.20,1.10,1.30,1.40,1.80,1.50],
+  "Twitter/X":[0.80,0.60,0.70,0.90,0.80,0.70,0.60],
+  Facebook:  [0.40,0.30,0.40,0.40,0.30,0.50,0.40],
+};
+const platformShare = [34,26,19,12,9];
+const ageMeans      = [7.2,8.1,6.4,4.9,3.2,1.8];
+const genderData    = {
+  Female:     [38,42,12,6,2],
+  Male:       [30,20,36,10,4],
+  "Non-binary":[28,24,18,22,8],
+};
+const mhLabels   = ["<1h","1–2h","2–4h","4–6h","6–8h","8h+"];
+const mhData     = {
+  "Anxiety/stress": [8,14,28,48,61,74],
+  "Poor sleep":     [10,18,34,52,66,78],
+  "Feels connected":[72,70,64,52,38,24],
+  "Productivity loss":[5,10,18,32,48,62],
+};
+const mhColors   = ["#E24B4A","#BA7517","#639922","#378ADD"];
+const mhDash     = [[],[6,3],[4,4],[8,2]];
+const peakHours  = ["6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23"];
+const peakSess   = [0.5,1.8,2.4,1.6,1.2,1.1,1.3,1.8,1.6,1.4,1.5,1.9,2.2,2.8,3.4,4.2,3.6,1.4];
+const reasons    = ["Entertainment","Stay connected","News & trends","Boredom","Work/study"];
+const reasonPcts = [78,64,51,47,29];
+const scatterPts = [
+  {x:7.2,y:34,r:8,label:"13–17"},
+  {x:8.1,y:38,r:10,label:"18–24"},
+  {x:6.4,y:28,r:9,label:"25–34"},
+  {x:4.9,y:22,r:7,label:"35–44"},
+  {x:3.2,y:15,r:5,label:"45–54"},
+  {x:1.8,y:9, r:3,label:"55+"},
+];
 
-st.sidebar.image("https://img.icons8.com/fluency/96/smartphone.png", width=60)
-st.sidebar.markdown("## 🔍 Filters & Settings")
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color       = "#888780";
 
-platforms_list = ["All"] + sorted(df["Platform"].unique().tolist())
-sel_platform = st.sidebar.selectbox("📌 Platform", platforms_list)
-
-age_groups_list = ["All"] + sorted(df["Age_Group"].unique().tolist())
-sel_age = st.sidebar.selectbox("👤 Age Group", age_groups_list)
-
-occupations_list = ["All"] + sorted(df["Occupation"].unique().tolist())
-sel_occ = st.sidebar.selectbox("💼 Occupation", occupations_list)
-
-usage_range = st.sidebar.slider(
-    "⏱ Daily Usage Hours (range)", 0.0, 12.0, (0.0, 12.0), step=0.5
-)
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 📊 Dataset Info")
-st.sidebar.info(f"Total Records: **{len(df)}**\nPlatforms: **{df['Platform'].nunique()}**")
-
-# Apply filters
-filtered = df.copy()
-if sel_platform != "All":
-    filtered = filtered[filtered["Platform"] == sel_platform]
-if sel_age != "All":
-    filtered = filtered[filtered["Age_Group"] == sel_age]
-if sel_occ != "All":
-    filtered = filtered[filtered["Occupation"] == sel_occ]
-filtered = filtered[
-    (filtered["Daily_Usage_Hours"] >= usage_range[0]) &
-    (filtered["Daily_Usage_Hours"] <= usage_range[1])
-]
-
-# ─────────────────────────────────────────────
-# TABS
-# ─────────────────────────────────────────────
-
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Overview",
-    "🤖 ML Models",
-    "📈 Deep Analysis",
-    "😊 Sentiment",
-    "🧠 Live Predictor"
-])
-
-# ════════════════════════════════════════════════════════
-# TAB 1 — OVERVIEW
-# ════════════════════════════════════════════════════════
-with tab1:
-    st.markdown("## 📊 Key Performance Indicators")
-
-    c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("👥 Users", len(filtered))
-    c2.metric("⏱ Avg Usage (hrs)", round(filtered["Daily_Usage_Hours"].mean(), 2))
-    c3.metric("🔥 Avg Addiction Score", round(filtered["Addiction_Score"].mean(), 2))
-    c4.metric("😴 Avg Sleep (hrs)", round(filtered["Sleep_Hours"].mean(), 2))
-    c5.metric("⚡ Avg Productivity", round(filtered["Productivity_Score"].mean(), 2))
-
-    st.markdown("---")
-    st.markdown("## 📋 Dataset Preview")
-    st.dataframe(
-        filtered[[
-            "Age", "Gender", "Occupation", "Platform",
-            "Daily_Usage_Hours", "Sleep_Hours",
-            "Productivity_Score", "Addiction_Score",
-            "Addiction_Level", "Screen_Health_Score", "Sentiment"
-        ]].head(25),
-        use_container_width=True
-    )
-
-    st.markdown("---")
-    left, right = st.columns(2)
-
-    with left:
-        st.markdown("### 📱 Usage by Platform")
-        platform_avg = (
-            filtered.groupby("Platform")["Daily_Usage_Hours"]
-            .mean().reset_index().sort_values("Daily_Usage_Hours", ascending=False)
-        )
-        fig_p = px.bar(
-            platform_avg, x="Platform", y="Daily_Usage_Hours",
-            color="Daily_Usage_Hours",
-            color_continuous_scale="Blues",
-            labels={"Daily_Usage_Hours": "Avg Hours"},
-            template="simple_white"
-        )
-        fig_p.update_layout(coloraxis_showscale=False)
-        st.plotly_chart(fig_p, use_container_width=True)
-
-    with right:
-        st.markdown("### 🎯 Addiction Level Distribution")
-        lvl_counts = filtered["Addiction_Level"].value_counts().reset_index()
-        lvl_counts.columns = ["Level", "Count"]
-        color_map = {"Low": "#4CAF50", "Moderate": "#FF9800", "High": "#F44336"}
-        fig_l = px.pie(
-            lvl_counts, names="Level", values="Count",
-            color="Level", color_discrete_map=color_map,
-            hole=0.4, template="simple_white"
-        )
-        st.plotly_chart(fig_l, use_container_width=True)
-
-    left2, right2 = st.columns(2)
-    with left2:
-        st.markdown("### 📅 Weekly Usage Trend")
-        days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        usage_wk = np.round(np.random.uniform(3, 9, 7), 2)
-        wk_df = pd.DataFrame({"Day": days, "Usage": usage_wk})
-        fig_wk = px.line(
-            wk_df, x="Day", y="Usage", markers=True,
-            template="simple_white",
-            labels={"Usage": "Avg Hours"},
-            color_discrete_sequence=["#4f8ef7"]
-        )
-        fig_wk.update_traces(line_width=2.5)
-        st.plotly_chart(fig_wk, use_container_width=True)
-
-    with right2:
-        st.markdown("### 🌡️ Screen Health Score Distribution")
-        fig_sh = px.histogram(
-            filtered, x="Screen_Health_Score", nbins=25,
-            color_discrete_sequence=["#43a047"],
-            template="simple_white",
-            labels={"Screen_Health_Score": "Health Score (0-100)"}
-        )
-        st.plotly_chart(fig_sh, use_container_width=True)
-
-# ════════════════════════════════════════════════════════
-# TAB 2 — ML MODELS
-# ════════════════════════════════════════════════════════
-with tab2:
-    st.markdown("## 🤖 Machine Learning Models")
-
-    features = [
-        "Age", "Daily_Usage_Hours", "Posts_Liked_Per_Day",
-        "Comments_Per_Day", "Messages_Sent", "Sleep_Hours",
-        "Productivity_Score", "Sessions_Per_Day", "Notifications_Received"
-    ]
-
-    X = df[features]
-    y = df["Addicted"]
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-
-    # Train three models
-    models = {
-        "Random Forest":        RandomForestClassifier(n_estimators=150, random_state=42),
-        "Gradient Boosting":    GradientBoostingClassifier(n_estimators=100, random_state=42),
-        "Logistic Regression":  LogisticRegression(max_iter=500, random_state=42),
+// Line chart
+new Chart(document.getElementById("lineChart"), {
+  type: "line",
+  data: {
+    labels: DAYS,
+    datasets: PLATFORMS.map((p,i) => ({
+      label: p,
+      data: lineData[p],
+      borderColor: PCOLORS[i],
+      backgroundColor: i===0 ? PCOLORS[i]+"18" : "transparent",
+      fill: i===0,
+      tension: 0.4,
+      borderWidth: 2,
+      pointRadius: 3,
+      borderDash: [[],[6,3],[4,4],[8,2],[3,3]][i],
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, max: 3.5, ticks: { callback: v => v+"h" }, grid: { color: "#EEEDE8" } }
     }
+  }
+});
 
-    results = {}
-    for name, m in models.items():
-        m.fit(X_train, y_train)
-        preds = m.predict(X_test)
-        cv    = cross_val_score(m, X, y, cv=5).mean()
-        results[name] = {
-            "model":    m,
-            "accuracy": accuracy_score(y_test, preds),
-            "cv_score": cv,
-            "preds":    preds,
-        }
+// Donut
+const donutLegend = document.getElementById("donut-legend");
+PLATFORMS.forEach((p,i) => {
+  donutLegend.innerHTML += `<div class="legend-item"><span class="dot" style="background:${PCOLORS[i]}"></span>${p} ${platformShare[i]}%</div>`;
+});
+new Chart(document.getElementById("donutChart"), {
+  type: "doughnut",
+  data: {
+    labels: PLATFORMS,
+    datasets: [{ data: platformShare, backgroundColor: PCOLORS, borderWidth: 2, borderColor: "#fff" }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` } }
+    },
+    cutout: "64%"
+  }
+});
 
-    # Model comparison
-    st.markdown("### 📊 Model Accuracy Comparison")
-    comp_df = pd.DataFrame({
-        "Model":    list(results.keys()),
-        "Test Accuracy (%)": [round(v["accuracy"]*100, 2) for v in results.values()],
-        "CV Score (%)":       [round(v["cv_score"]*100, 2) for v in results.values()],
-    })
-    st.dataframe(comp_df, use_container_width=True, hide_index=True)
+// Age horizontal bars
+const ageBarsEl = document.getElementById("age-bars");
+const maxAgeH = 9;
+AGE_ORDER.forEach((ag,i) => {
+  ageBarsEl.innerHTML += `
+    <div class="hbar">
+      <div class="hbar-label">${ag}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${Math.round(ageMeans[i]/maxAgeH*100)}%;background:${AGE_COLORS[i]}"></div></div>
+      <div class="hbar-val">${ageMeans[i]}h</div>
+    </div>`;
+});
 
-    best_name = max(results, key=lambda k: results[k]["accuracy"])
-    best = results[best_name]
-    st.success(f"✅ Best Model: **{best_name}** — Accuracy: **{round(best['accuracy']*100, 2)}%**")
+// Gender grouped bar
+new Chart(document.getElementById("genderChart"), {
+  type: "bar",
+  data: {
+    labels: PLATFORMS,
+    datasets: Object.entries(genderData).map(([g,d], i) => ({
+      label: g,
+      data: d,
+      backgroundColor: ["#993356","#0F6E56","#854F0B"][i],
+      barPercentage: 0.8,
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { ticks: { callback: v=>v+"%", font:{size:10} }, grid:{color:"#EEEDE8"} }
+    }
+  }
+});
 
-    col_a, col_b = st.columns(2)
+// Mental health multi-line
+new Chart(document.getElementById("mhChart"), {
+  type: "line",
+  data: {
+    labels: mhLabels,
+    datasets: Object.entries(mhData).map(([label,data],i) => ({
+      label, data,
+      borderColor: mhColors[i],
+      backgroundColor: "transparent",
+      tension: 0.4,
+      borderWidth: 2.2,
+      pointRadius: 4,
+      borderDash: mhDash[i],
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, max: 100, ticks: { callback: v=>v+"%", font:{size:10} }, grid:{color:"#EEEDE8"} }
+    }
+  }
+});
 
-    with col_a:
-        st.markdown("### 📌 Feature Importance")
-        rf_model = results["Random Forest"]["model"]
-        imp_df = pd.DataFrame({
-            "Feature": features,
-            "Importance": rf_model.feature_importances_
-        }).sort_values("Importance", ascending=True)
-        fig_imp = px.bar(
-            imp_df, x="Importance", y="Feature",
-            orientation="h",
-            color="Importance",
-            color_continuous_scale="Blues",
-            template="simple_white"
-        )
-        fig_imp.update_layout(coloraxis_showscale=False, yaxis_title="")
-        st.plotly_chart(fig_imp, use_container_width=True)
+// Peak hours bar
+new Chart(document.getElementById("peakChart"), {
+  type: "bar",
+  data: {
+    labels: peakHours,
+    datasets: [{
+      data: peakSess,
+      backgroundColor: peakSess.map(v => v === Math.max(...peakSess) ? "#7F77DD" : "rgba(127,119,221,0.32)"),
+      borderRadius: 4,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid:{display:false}, ticks:{font:{size:9}} },
+      y: { grid:{color:"#EEEDE8"}, ticks:{font:{size:9}} }
+    }
+  }
+});
 
-    with col_b:
-        st.markdown("### 🟦 Confusion Matrix")
-        cm = confusion_matrix(y_test, best["preds"])
-        fig_cm = px.imshow(
-            cm,
-            labels={"x": "Predicted", "y": "Actual", "color": "Count"},
-            x=["Not Addicted", "Addicted"],
-            y=["Not Addicted", "Addicted"],
-            text_auto=True,
-            color_continuous_scale="Blues",
-            template="simple_white"
-        )
-        st.plotly_chart(fig_cm, use_container_width=True)
+// Reasons horizontal bars
+const reasonEl = document.getElementById("reason-bars");
+const maxR = Math.max(...reasonPcts);
+reasons.forEach((r,i) => {
+  const clr = i === 0 ? "#D85A30" : "#7F77DD";
+  reasonEl.innerHTML += `
+    <div class="hbar">
+      <div class="hbar-label" style="font-size:11px">${r}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${Math.round(reasonPcts[i]/maxR*100)}%;background:${clr}"></div></div>
+      <div class="hbar-val">${reasonPcts[i]}%</div>
+    </div>`;
+});
 
-    # ROC Curve
-    st.markdown("### 📉 ROC Curves (All Models)")
-    fig_roc = go.Figure()
-    for name, res in results.items():
-        m = res["model"]
-        if hasattr(m, "predict_proba"):
-            proba = m.predict_proba(X_test)[:, 1]
-        else:
-            proba = m.decision_function(X_test)
-        fpr, tpr, _ = roc_curve(y_test, proba)
-        roc_auc = auc(fpr, tpr)
-        fig_roc.add_trace(go.Scatter(
-            x=fpr, y=tpr, mode="lines",
-            name=f"{name} (AUC={round(roc_auc, 3)})"
-        ))
-    fig_roc.add_trace(go.Scatter(
-        x=[0,1], y=[0,1], mode="lines",
-        line=dict(dash="dash", color="gray"),
-        name="Random Chance"
-    ))
-    fig_roc.update_layout(
-        xaxis_title="False Positive Rate",
-        yaxis_title="True Positive Rate",
-        template="simple_white",
-        legend=dict(x=0.55, y=0.1)
-    )
-    st.plotly_chart(fig_roc, use_container_width=True)
+// Scatter / bubble
+const scatterLegend = document.getElementById("scatter-legend");
+AGE_ORDER.forEach((ag,i) => {
+  scatterLegend.innerHTML += `<div class="legend-item"><span class="dot dot-circle" style="background:${AGE_COLORS[i]}"></span>${ag}</div>`;
+});
+new Chart(document.getElementById("scatterChart"), {
+  type: "bubble",
+  data: {
+    datasets: scatterPts.map((pt,i) => ({
+      label: pt.label,
+      data: [{ x: pt.x, y: pt.y, r: pt.r * 1.8 }],
+      backgroundColor: AGE_COLORS[i] + "99",
+      borderColor: AGE_COLORS[i],
+      borderWidth: 1.5,
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.x}h / day, ${ctx.parsed.y} sessions` } } },
+    scales: {
+      x: { min: 0, max: 10, title: { display: true, text: "Daily hours", font:{size:10} }, grid:{color:"#EEEDE8"} },
+      y: { min: 0, max: 50, title: { display: true, text: "Sessions/day", font:{size:10} }, grid:{color:"#EEEDE8"} }
+    }
+  }
+});
 
-    # Classification report
-    st.markdown("### 📋 Classification Report (Best Model)")
-    report = classification_report(y_test, best["preds"], output_dict=True)
-    report_df = pd.DataFrame(report).T.drop(columns=["support"], errors="ignore")
-    st.dataframe(report_df.round(3), use_container_width=True)
+// ── FILTER LOGIC ──────────────────────────────────────────────────────────────
+const RAW_DATA = generateMockRows(2400);
 
-# ════════════════════════════════════════════════════════
-# TAB 3 — DEEP ANALYSIS
-# ════════════════════════════════════════════════════════
-with tab3:
-    st.markdown("## 📈 Deep Behavioural Analysis")
+function generateMockRows(n) {
+  const ages = ["13–17","18–24","25–34","35–44","45–54","55+"];
+  const genders = ["Female","Male","Non-binary"];
+  const platforms = ["TikTok","Instagram","YouTube","Twitter/X","Facebook"];
+  const moods = ["Happy","Neutral","Anxious","Sad","Tired"];
+  const reasons = ["Entertainment","Stay connected","News & trends","Boredom","Work/study"];
+  const ageBases = [7.2,8.1,6.4,4.9,3.2,1.8];
+  const rows = [];
+  for (let i=0;i<n;i++) {
+    const ai = Math.floor(Math.random()*6);
+    const gi = Math.floor(Math.random()*3);
+    const h  = Math.max(0.2, Math.min(14, ageBases[ai] + (Math.random()-0.5)*2.8));
+    const plat = platforms[Math.floor(Math.random()*5)];
+    rows.push({ age: ages[ai], gender: genders[gi], hours: +h.toFixed(1), platform: plat,
+                anxiety: h>6 ? Math.random()<0.65 : Math.random()<0.10,
+                poor_sleep: h>5 ? Math.random()<0.60 : Math.random()<0.15,
+                mood: moods[Math.floor(Math.random()*5)],
+                reason: reasons[Math.floor(Math.random()*5)] });
+  }
+  return rows;
+}
 
-    c1, c2 = st.columns(2)
+function applyFilters() {
+  const age  = document.getElementById("f-age").value;
+  const gen  = document.getElementById("f-gender").value;
+  const plat = document.getElementById("f-platform").value;
+  let filtered = RAW_DATA.filter(r =>
+    (age  === "all" || r.age      === age)  &&
+    (gen  === "all" || r.gender   === gen)  &&
+    (plat === "all" || r.platform === plat)
+  );
+  document.getElementById("filter-count").textContent =
+    `Showing ${filtered.length.toLocaleString()} of ${RAW_DATA.length.toLocaleString()} users`;
 
-    with c1:
-        st.markdown("### 🔥 Correlation Heatmap")
-        num_cols = [
-            "Age", "Daily_Usage_Hours", "Sleep_Hours",
-            "Productivity_Score", "Addiction_Score",
-            "Screen_Health_Score", "Sessions_Per_Day"
-        ]
-        corr = filtered[num_cols].corr()
-        fig_heat = px.imshow(
-            corr, text_auto=".2f",
-            color_continuous_scale="RdBu_r",
-            template="simple_white",
-            aspect="auto"
-        )
-        st.plotly_chart(fig_heat, use_container_width=True)
+  if (filtered.length === 0) return;
+  const avgH  = (filtered.reduce((s,r)=>s+r.hours,0)/filtered.length).toFixed(1);
+  const anxPct= Math.round(filtered.filter(r=>r.anxiety).length/filtered.length*100);
+  const slpPct= Math.round(filtered.filter(r=>r.poor_sleep).length/filtered.length*100);
+  document.querySelector(".kpi:nth-child(1) .kpi-value").textContent = avgH+"h";
+  document.querySelector(".kpi:nth-child(4) .kpi-value").textContent = anxPct+"%";
+}
 
-    with c2:
-        st.markdown("### ⚡ Productivity vs Usage (by Occupation)")
-        fig_sc = px.scatter(
-            filtered, x="Daily_Usage_Hours", y="Productivity_Score",
-            color="Occupation", size="Addiction_Score",
-            opacity=0.7, template="simple_white",
-            labels={"Daily_Usage_Hours": "Daily Usage (hrs)"},
-            hover_data=["Platform", "Age", "Sleep_Hours"]
-        )
-        st.plotly_chart(fig_sc, use_container_width=True)
-
-    c3, c4 = st.columns(2)
-
-    with c3:
-        st.markdown("### 😴 Sleep vs Addiction Score")
-        fig_sl = px.scatter(
-            filtered, x="Sleep_Hours", y="Addiction_Score",
-            color="Addiction_Level",
-            color_discrete_map={"Low": "#4CAF50", "Moderate": "#FF9800", "High": "#F44336"},
-            template="simple_white",
-            opacity=0.7,
-            trendline="ols"
-        )
-        st.plotly_chart(fig_sl, use_container_width=True)
-
-    with c4:
-        st.markdown("### 📊 Usage Distribution by Age Group")
-        fig_vio = px.violin(
-            filtered, x="Age_Group", y="Daily_Usage_Hours",
-            color="Age_Group", box=True, points="outliers",
-            template="simple_white"
-        )
-        fig_vio.update_layout(showlegend=False)
-        st.plotly_chart(fig_vio, use_container_width=True)
-
-    st.markdown("### 🧮 Platform × Addiction Level Breakdown")
-    cross = pd.crosstab(filtered["Platform"], filtered["Addiction_Level"], normalize="index") * 100
-    cross = cross.reset_index()
-    cross_melted = cross.melt(id_vars="Platform", var_name="Addiction Level", value_name="Percentage")
-    fig_stk = px.bar(
-        cross_melted, x="Platform", y="Percentage",
-        color="Addiction Level",
-        barmode="stack",
-        color_discrete_map={"Low": "#4CAF50", "Moderate": "#FF9800", "High": "#F44336"},
-        template="simple_white",
-        labels={"Percentage": "% of Users"}
-    )
-    st.plotly_chart(fig_stk, use_container_width=True)
-
-# ════════════════════════════════════════════════════════
-# TAB 4 — SENTIMENT
-# ════════════════════════════════════════════════════════
-with tab4:
-    st.markdown("## 😊 Sentiment & Emotional Analysis")
-
-    c1, c2 = st.columns(2)
-
-    with c1:
-        st.markdown("### 😊 Sentiment Distribution")
-        sent_counts = filtered["Sentiment"].value_counts().reset_index()
-        sent_counts.columns = ["Sentiment", "Count"]
-        color_sent = {"Positive": "#4CAF50", "Neutral": "#9E9E9E", "Negative": "#F44336"}
-        fig_sent = px.pie(
-            sent_counts, names="Sentiment", values="Count",
-            color="Sentiment", color_discrete_map=color_sent,
-            hole=0.45, template="simple_white"
-        )
-        st.plotly_chart(fig_sent, use_container_width=True)
-
-    with c2:
-        st.markdown("### 🔀 Sentiment by Platform")
-        sent_plat = filtered.groupby(["Platform", "Sentiment"]).size().reset_index(name="Count")
-        fig_sp = px.bar(
-            sent_plat, x="Platform", y="Count",
-            color="Sentiment", barmode="group",
-            color_discrete_map=color_sent,
-            template="simple_white"
-        )
-        st.plotly_chart(fig_sp, use_container_width=True)
-
-    st.markdown("### 📉 Polarity Score Distribution")
-    fig_pol = px.histogram(
-        filtered, x="Polarity", nbins=30,
-        color_discrete_sequence=["#4f8ef7"],
-        template="simple_white",
-        labels={"Polarity": "Sentiment Polarity (-1 = Negative, +1 = Positive)"}
-    )
-    st.plotly_chart(fig_pol, use_container_width=True)
-
-    # Insight table
-    st.markdown("### 📋 Sentiment Insight Summary")
-    insight_rows = []
-    for plat in filtered["Platform"].unique():
-        sub = filtered[filtered["Platform"] == plat]
-        pos = round(sub[sub["Sentiment"] == "Positive"].shape[0] / len(sub) * 100, 1)
-        neg = round(sub[sub["Sentiment"] == "Negative"].shape[0] / len(sub) * 100, 1)
-        avg_pol = round(sub["Polarity"].mean(), 3)
-        insight_rows.append({
-            "Platform": plat, "Positive %": pos,
-            "Negative %": neg, "Avg Polarity": avg_pol
-        })
-    ins_df = pd.DataFrame(insight_rows).sort_values("Avg Polarity", ascending=False)
-    st.dataframe(ins_df, use_container_width=True, hide_index=True)
-
-# ════════════════════════════════════════════════════════
-# TAB 5 — LIVE PREDICTOR
-# ════════════════════════════════════════════════════════
-with tab5:
-    st.markdown("## 🧠 Live Addiction Risk Predictor")
-    st.info("Fill in the sliders below and click **Predict** to instantly assess addiction risk.")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        u_age         = st.slider("🧑 Age", 13, 50, 22)
-        u_usage       = st.slider("⏱ Daily Usage (hrs)", 0.5, 15.0, 5.0, step=0.5)
-        u_sessions    = st.slider("📲 Sessions Per Day", 1, 30, 8)
-
-    with col2:
-        u_likes       = st.slider("❤️ Likes Per Day", 0, 600, 100)
-        u_comments    = st.slider("💬 Comments Per Day", 0, 150, 20)
-        u_messages    = st.slider("📩 Messages Sent", 0, 350, 50)
-
-    with col3:
-        u_notifications = st.slider("🔔 Notifications Received", 0, 400, 80)
-        u_sleep       = st.slider("😴 Sleep Hours", 1.0, 10.0, 7.0, step=0.5)
-        u_productivity = st.slider("⚡ Productivity Score (1-10)", 1, 10, 5)
-
-    st.markdown("")
-    if st.button("🔍 Predict Addiction Risk"):
-        input_arr = np.array([[
-            u_age, u_usage, u_likes, u_comments,
-            u_messages, u_sleep, u_productivity,
-            u_sessions, u_notifications
-        ]])
-
-        rf_m = results["Random Forest"]["model"]
-        pred  = rf_m.predict(input_arr)[0]
-        proba = rf_m.predict_proba(input_arr)[0][1]
-
-        # Derived insight scores
-        raw_addiction = (
-            u_usage * 2
-            + u_likes / 60
-            + u_messages / 50
-            + u_sessions * 0.3
-            - u_sleep * 0.8
-        )
-        health_score = max(0, min(100,
-            100 - u_usage * 6 + u_sleep * 3 + u_productivity * 1.5
-        ))
-
-        st.markdown("---")
-        st.markdown("### 📊 Your Personalised Report")
-
-        r1, r2, r3, r4 = st.columns(4)
-        r1.metric("🔥 Addiction Score", round(raw_addiction, 1))
-        r2.metric("🛡️ Screen Health", f"{round(health_score, 1)}/100")
-        r3.metric("🤖 Risk Probability", f"{round(proba*100, 1)}%")
-        r4.metric("📊 Predicted Risk", "HIGH ⚠️" if pred == 1 else "LOW ✅")
-
-        # Risk gauge
-        fig_gauge = go.Figure(go.Indicator(
-            mode="gauge+number+delta",
-            value=round(proba * 100, 1),
-            title={"text": "Addiction Risk (%)"},
-            delta={"reference": 50},
-            gauge={
-                "axis": {"range": [0, 100]},
-                "bar": {"color": "#F44336" if proba > 0.5 else "#4CAF50"},
-                "steps": [
-                    {"range": [0, 33],   "color": "#e8f5e9"},
-                    {"range": [33, 66],  "color": "#fff3e0"},
-                    {"range": [66, 100], "color": "#ffebee"},
-                ],
-                "threshold": {
-                    "line": {"color": "black", "width": 3},
-                    "thickness": 0.75,
-                    "value": 50
-                }
-            }
-        ))
-        fig_gauge.update_layout(template="simple_white", height=300)
-        st.plotly_chart(fig_gauge, use_container_width=True)
-
-        if pred == 1:
-            st.error("⚠️ **High Addiction Risk Detected!** You may want to limit screen time and improve sleep habits.")
-        else:
-            st.success("✅ **Healthy Usage Pattern.** Keep maintaining balance between online and offline activities.")
-
-        # Personalised tips
-        st.markdown("### 💡 Personalised Recommendations")
-        tips = []
-        if u_usage > 7:   tips.append("📵 Reduce daily screen time — aim for under 4 hrs.")
-        if u_sleep < 6:   tips.append("😴 Sleep more! Target 7-8 hours for cognitive health.")
-        if u_productivity < 4: tips.append("⚡ Take regular breaks to boost focus and output.")
-        if u_sessions > 15:    tips.append("📲 Reduce app sessions — try scheduled check-ins.")
-        if u_notifications > 200: tips.append("🔕 Mute non-essential notifications.")
-        if not tips:       tips.append("🎉 Great habits! Keep it up and stay consistent.")
-
-        for tip in tips:
-            st.markdown(f"- {tip}")
-
-# ─────────────────────────────────────────────
-# FOOTER
-# ─────────────────────────────────────────────
-
-st.markdown("---")
-st.markdown(
-    "<center>📱 <b>AI Social Media Usage Analysis System</b> · "
-    "Built with Python · Streamlit · Plotly · Scikit-learn · TextBlob</center>",
-    unsafe_allow_html=True
-)  
+function resetFilters() {
+  ["f-age","f-gender","f-platform"].forEach(id => document.getElementById(id).value="all");
+  document.querySelector(".kpi:nth-child(1) .kpi-value").textContent = "6.4h";
+  document.querySelector(".kpi:nth-child(4) .kpi-value").textContent = "61%";
+  document.getElementById("filter-count").textContent = "";
+}
+</script>
+</body>
+</html>
