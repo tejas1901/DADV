@@ -106,7 +106,26 @@ This repository hosts three primary components:
 
 *   **Tutor for All**: Open the client files located in the `/frontend` directory or run the server which serves them directly on `http://localhost:5000/`.
 *   **Disaster Weather UI**: Access the UI directly at `http://localhost:5000/disaster`.
-*   **Social Media Dashboard**: Open `social-media-dashboard.html` directly in any web browser to view the interactive charts and metrics.
+*   **Social Media Dashboard (Direct)**: Open `social-media-dashboard.html` directly in any web browser to view the interactive charts and metrics.
+*   **Social Media Dashboard (Streamlit)**:
+    1. Install Streamlit dependencies:
+       ```bash
+       pip install -r requirements.txt
+       ```
+    2. Run the Streamlit dashboard locally:
+       ```bash
+       streamlit run app.py
+       ```
+
+---
+
+### ☁️ Streamlit Community Cloud Deployment
+
+To host the interactive Social Media Dashboard online for free:
+1. Log in to [Streamlit Community Cloud](https://share.streamlit.io/).
+2. Click **Create app** and connect your GitHub account.
+3. Select this repository (`DADV`), branch (`main`), and set the main file path to `app.py`.
+4. Click **Deploy!** Streamlit will automatically install dependencies from `requirements.txt` and host your dashboard.
 
 ---
 
