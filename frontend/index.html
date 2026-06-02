@@ -1,0 +1,4890 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link
+  href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+  rel="stylesheet">
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+  }
+
+  :root {
+    --g1: #F3EEFF;
+    --g2: #E0CEFF;
+    --g3: #C9ABFF;
+    --g4: #A97EF5;
+    --g5: #7C3AED;
+    --g6: #5B21B6;
+    --g7: #3B0F8C;
+    --g8: #1E0556;
+    --ice: #ffffff;
+    --frost: #ffffff;
+    --snow: #FFFFFF;
+    --t1: #1E0556;
+    --t2: #5B21B6;
+    --t3: #7C3AED;
+    --tm: #6B5C8A;
+    --card-r: 14px;
+    --btn-r: 8px;
+    --shadow: 0 2px 12px rgba(124, 58, 237, 0.14);
+    --land-bg: #0D0520;
+    --land-blue: #7C3AED;
+    --land-cyan: #7C3AED;
+    --land-silver: #C4B5FD;
+  }
+
+  /* ══════════════════════════════════════
+     ENHANCED GLOBAL FORMULA BACKGROUND
+     ══════════════════════════════════════ */
+  #formula-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .fnode {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    opacity: 0;
+    animation: floatUp linear infinite;
+  }
+
+  @keyframes floatUp {
+    0% {
+      opacity: 0;
+      transform: translateY(0px) rotate(var(--r)) scale(0.85);
+    }
+
+    8% {
+      opacity: var(--peak-op);
+    }
+
+    85% {
+      opacity: var(--peak-op);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(-110vh) rotate(var(--r)) scale(1.05);
+    }
+  }
+
+  @keyframes floatDrift {
+    0% {
+      opacity: 0;
+      transform: translateY(0) translateX(0) rotate(var(--r));
+    }
+
+    10% {
+      opacity: var(--peak-op);
+    }
+
+    80% {
+      opacity: var(--peak-op);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(-100vh) translateX(var(--dx)) rotate(var(--r2));
+    }
+  }
+
+  .fnode.drift {
+    animation-name: floatDrift;
+  }
+
+  /* ══════════════════════════════════════
+     LANDING PAGE STYLES
+     ══════════════════════════════════════ */
+  #page-landing {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--land-bg);
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: block;
+  }
+
+  #page-landing.hide {
+    animation: landingExit .8s cubic-bezier(.4, 0, .2, 1) forwards;
+  }
+
+  @keyframes landingExit {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: scale(1.04);
+      pointer-events: none;
+    }
+  }
+
+  /* Landing canvas bg */
+  #land-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Landing grid overlay */
+  .land-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(124, 58, 237, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 58, 237, 0.07) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Landing vignette */
+  .land-vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, rgba(13, 5, 32, 0.7) 100%);
+  }
+
+  .land-content {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Top bar */
+  .land-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+  }
+
+  .land-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .land-logo-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--land-blue), var(--land-cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+  }
+
+  .land-nav-pill {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    border-radius: 40px;
+    padding: 4px;
+    backdrop-filter: blur(8px);
+  }
+
+  .land-nav-btn {
+    padding: 7px 18px;
+    border-radius: 36px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: all .2s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .land-nav-btn:hover {
+    color: #fff;
+    background: rgba(124, 58, 237, 0.15);
+  }
+
+  .land-enter-btn {
+    background: linear-gradient(135deg, var(--land-blue), #6D28D9);
+    color: #fff;
+    padding: 9px 22px;
+    border-radius: 36px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    box-shadow: 0 0 24px rgba(124, 58, 237, 0.35);
+    transition: all .2s;
+  }
+
+  .land-enter-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 32px rgba(124, 58, 237, 0.55);
+  }
+
+  /* Hero section */
+  .land-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px 60px;
+    position: relative;
+  }
+
+  /* Floating badge */
+  .land-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124, 58, 237, 0.10);
+    border: 1px solid rgba(124, 58, 237, 0.28);
+    border-radius: 40px;
+    padding: 7px 18px;
+    margin-bottom: 36px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--land-cyan);
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    animation: badgePop .8s cubic-bezier(.34, 1.56, .64, 1) both;
+  }
+
+  .land-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--land-cyan);
+    box-shadow: 0 0 8px var(--land-cyan);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes badgePop {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(.9);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes pulse {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: .4;
+    }
+  }
+
+  /* Main headline */
+  .land-h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 7vw, 90px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    color: #fff;
+    margin-bottom: 8px;
+    animation: heroIn .9s cubic-bezier(.25, .46, .45, .94) .1s both;
+  }
+
+  .land-h1 .accent {
+    background: linear-gradient(135deg, var(--land-blue), var(--land-cyan), #fcd34d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .land-h1 .outline-txt {
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.3);
+    -webkit-text-fill-color: transparent;
+  }
+
+  @keyframes heroIn {
+    from {
+      opacity: 0;
+      transform: translateY(32px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Subtitle */
+  .land-sub {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(15px, 2vw, 20px);
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 600px;
+    line-height: 1.7;
+    margin: 20px auto 48px;
+    animation: heroIn .9s .25s both;
+  }
+
+  /* CTA group */
+  .land-ctas {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: heroIn .9s .4s both;
+    margin-bottom: 80px;
+  }
+
+  .land-cta-primary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--land-blue), #6D28D9);
+    color: #fff;
+    padding: 15px 32px;
+    border-radius: 50px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.40);
+    transition: all .25s;
+  }
+
+  .land-cta-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  .land-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 60px rgba(124, 58, 237, 0.55);
+  }
+
+  .land-cta-primary:hover::before {
+    opacity: 1;
+  }
+
+  .land-cta-secondary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.75);
+    padding: 15px 32px;
+    border-radius: 50px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: all .25s;
+    backdrop-filter: blur(8px);
+  }
+
+  .land-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Floating subject orbs */
+  .land-orbs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+    animation: orbFloat linear infinite;
+  }
+
+  @keyframes orbFloat {
+
+    0%,
+    100% {
+      transform: translateY(0px) scale(1);
+    }
+
+    50% {
+      transform: translateY(-30px) scale(1.05);
+    }
+  }
+
+  /* Stats bar */
+  .land-stats {
+    display: flex;
+    gap: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(124, 58, 237, 0.12);
+    animation: heroIn .9s .55s both;
+  }
+
+  .land-stat {
+    padding: 32px 48px;
+    text-align: center;
+    border-right: 1px solid rgba(124, 58, 237, 0.12);
+    position: relative;
+  }
+
+  .land-stat:last-child {
+    border-right: none;
+  }
+
+  .land-stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--land-blue), var(--land-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+  }
+
+  .land-stat-lbl {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Features strip */
+  .land-features {
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .land-feat {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all .3s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .land-feat::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(124, 58, 237, 0.08) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+
+  .land-feat:hover {
+    border-color: rgba(124, 58, 237, 0.3);
+    transform: translateY(-4px);
+  }
+
+  .land-feat:hover::before {
+    opacity: 1;
+  }
+
+  .land-feat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(249, 115, 22, 0.08));
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .land-feat-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .land-feat-desc {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.7;
+  }
+
+  /* Subjects preview */
+  .land-subjects {
+    padding: 0 48px 80px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .land-s-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+
+  .land-s-sub {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .land-subj-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .land-subj-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    padding: 28px;
+    cursor: pointer;
+    transition: all .3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .land-subj-card:hover {
+    border-color: rgba(124, 58, 237, 0.35);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(13, 5, 32, 0.5);
+  }
+
+  .land-subj-card .sbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--sc1), var(--sc2));
+  }
+
+  .land-subj-emoji {
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+
+  .land-subj-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .land-subj-desc {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .land-subj-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .land-tag {
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    color: rgba(124, 58, 237, 0.8);
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: .3px;
+  }
+
+  .land-subj-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--land-cyan);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Testimonials ticker */
+  .land-ticker {
+    padding: 0 0 80px;
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+  }
+
+  .land-ticker-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .ticker-track {
+    display: flex;
+    gap: 20px;
+    width: max-content;
+    animation: ticker 40s linear infinite;
+  }
+
+  .ticker-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes ticker {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .tick-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 20px 24px;
+    min-width: 280px;
+    flex-shrink: 0;
+  }
+
+  .tick-stars {
+    color: #F59E0B;
+    font-size: 12px;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+
+  .tick-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .tick-author {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: .4px;
+  }
+
+  /* Final CTA */
+  .land-final {
+    margin: 0 48px 80px;
+    padding: 64px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(249, 115, 22, 0.04));
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 28px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+  }
+
+  .land-final::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 200px;
+    background: radial-gradient(ellipse, rgba(124, 58, 237, 0.2), transparent 70%);
+    pointer-events: none;
+  }
+
+  .land-final-h {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+
+  .land-final-sub {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 36px;
+  }
+
+  /* Interactive particle text */
+  .land-particle-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .char-reveal {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(40px) rotate(-5deg);
+    animation: charIn .6s cubic-bezier(.34, 1.56, .64, 1) both;
+  }
+
+  @keyframes charIn {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Scroll indicator */
+  .land-scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    animation: heroIn 1s .8s both;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(rgba(124, 58, 237, 0.5), transparent);
+    animation: scrollLine 2s infinite;
+  }
+
+  @keyframes scrollLine {
+    0% {
+      height: 0;
+      opacity: 1;
+    }
+
+    100% {
+      height: 40px;
+      opacity: 0;
+    }
+  }
+
+  /* Mouse follower glow */
+  #mouse-glow {
+    position: fixed;
+    pointer-events: none;
+    z-index: 5;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: left .1s, top .1s;
+    mix-blend-mode: screen;
+  }
+
+  /* Landing number counter animation */
+  @keyframes countUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media(max-width:768px) {
+    .land-nav {
+      padding: 16px 20px;
+    }
+
+    .land-nav-pill {
+      display: none;
+    }
+
+    .land-hero {
+      padding: 60px 20px 40px;
+    }
+
+    .land-stats {
+      flex-direction: column;
+    }
+
+    .land-stat {
+      border-right: none;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+    }
+
+    .land-features,
+    .land-subjects {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .land-final {
+      margin: 0 20px 60px;
+      padding: 40px 24px;
+    }
+
+    .land-ticker {
+      padding: 0 0 60px;
+    }
+  }
+
+  body {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background: linear-gradient(135deg, #F3EEFF 0%, #EDE9FE 40%, #E0CEFF 100%);
+    min-height: 100vh;
+    color: var(--t1)
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1
+  }
+
+  /* NAV */
+  nav {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--g2);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 62px;
+    position: sticky;
+    top: 0;
+    z-index: 100
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--g7);
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 6px
+  }
+
+  .nav-link {
+    padding: 7px 14px;
+    border-radius: var(--btn-r);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--t2);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: background .15s
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    background: var(--g1);
+    color: var(--g7)
+  }
+
+  .nav-cta {
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: var(--btn-r);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity .15s
+  }
+
+  .nav-cta:hover {
+    opacity: .88
+  }
+
+  /* PAGES */
+  .page {
+    display: none;
+    animation: fadeIn .3s ease
+  }
+
+  .page.active {
+    display: block
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px)
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0)
+    }
+  }
+
+  /* HERO */
+  .hero {
+    padding: 80px 2rem 60px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(232, 244, 248, 0) 0%, rgba(200, 230, 240, 0.3) 100%)
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--frost);
+    border: 1px solid var(--g3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--g6);
+    margin-bottom: 20px;
+    letter-spacing: .3px
+  }
+
+  .hero h1 {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--g8);
+    line-height: 1.15;
+    margin-bottom: 16px
+  }
+
+  .hero h1 span {
+    color: var(--g5)
+  }
+
+  .hero p {
+    font-size: 17px;
+    color: var(--tm);
+    max-width: 540px;
+    margin: 0 auto 32px;
+    line-height: 1.7
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    color: #fff;
+    padding: 13px 28px;
+    border-radius: var(--btn-r);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity .15s, transform .1s
+  }
+
+  .btn-primary:hover {
+    opacity: .9;
+    transform: translateY(-1px)
+  }
+
+  .btn-outline {
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--g7);
+    padding: 13px 28px;
+    border-radius: var(--btn-r);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--g4);
+    transition: background .15s
+  }
+
+  .btn-outline:hover {
+    background: var(--frost)
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    margin-top: 48px;
+    flex-wrap: wrap
+  }
+
+  .stat {
+    text-align: center
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--g7)
+  }
+
+  .stat-lbl {
+    font-size: 12px;
+    color: var(--tm);
+    margin-top: 2px;
+    letter-spacing: .3px
+  }
+
+  /* SECTION */
+  .section {
+    padding: 60px 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--g5);
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    margin-bottom: 8px
+  }
+
+  .section-h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--g8);
+    margin-bottom: 12px
+  }
+
+  .section-sub {
+    font-size: 15px;
+    color: var(--tm);
+    margin-bottom: 40px;
+    max-width: 520px
+  }
+
+  /* SUBJECT CARDS */
+  .subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px
+  }
+
+  .subject-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--g2);
+    border-radius: var(--card-r);
+    padding: 24px;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    position: relative;
+    overflow: hidden
+  }
+
+  .subject-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--g4), var(--g6))
+  }
+
+  .subject-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(46, 127, 166, 0.18);
+    border-color: var(--g4)
+  }
+
+  .subject-card.chem::before {
+    background: linear-gradient(90deg, #5CC8E0, #2E7FA6)
+  }
+
+  .subject-card.dbms::before {
+    background: linear-gradient(90deg, #7BB8D4, #1A5F80)
+  }
+
+  .subject-card.math::before {
+    background: linear-gradient(90deg, #A8D8F0, #4E9DBF)
+  }
+
+  .subj-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px
+  }
+
+  .subj-icon.chem {
+    background: linear-gradient(135deg, #C8E6F0, #7BBDD8)
+  }
+
+  .subj-icon.dbms {
+    background: linear-gradient(135deg, #D6EEF7, #4E9DBF)
+  }
+
+  .subj-icon.math {
+    background: linear-gradient(135deg, #E8F4F8, #2E7FA6)
+  }
+
+  .subj-name {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--g8);
+    margin-bottom: 6px
+  }
+
+  .subj-desc {
+    font-size: 13px;
+    color: var(--tm);
+    line-height: 1.6;
+    margin-bottom: 16px
+  }
+
+  .subj-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px
+  }
+
+  .topic-tag {
+    background: var(--g1);
+    border: 1px solid var(--g3);
+    color: var(--g7);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: .2px
+  }
+
+  .subj-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--g1);
+    padding-top: 16px
+  }
+
+  .subj-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--g6)
+  }
+
+  .subj-price span {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--tm)
+  }
+
+  .enroll-btn {
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: var(--btn-r);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity .15s
+  }
+
+  .enroll-btn:hover {
+    opacity: .85
+  }
+
+  /* TUTORS */
+  .tutors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px
+  }
+
+  .tutor-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--g2);
+    border-radius: var(--card-r);
+    padding: 24px;
+    text-align: center;
+    transition: transform .2s, box-shadow .2s
+  }
+
+  .tutor-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow)
+  }
+
+  .tutor-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--g3), var(--g6));
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff
+  }
+
+  .tutor-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--g8);
+    margin-bottom: 4px
+  }
+
+  .tutor-subj {
+    font-size: 12px;
+    color: var(--t3);
+    font-weight: 600;
+    margin-bottom: 8px
+  }
+
+  .tutor-rating {
+    font-size: 13px;
+    color: #E8A020;
+    margin-bottom: 10px
+  }
+
+  .tutor-exp {
+    font-size: 12px;
+    color: var(--tm)
+  }
+
+  /* FORM */
+  .form-wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--g2);
+    border-radius: var(--card-r);
+    padding: 40px;
+    box-shadow: var(--shadow)
+  }
+
+  .form-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--g8);
+    margin-bottom: 6px
+  }
+
+  .form-sub {
+    font-size: 14px;
+    color: var(--tm);
+    margin-bottom: 28px
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px
+  }
+
+  .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--g7)
+  }
+
+  .form-input {
+    background: var(--ice);
+    border: 1.5px solid var(--g2);
+    border-radius: var(--btn-r);
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--t1);
+    outline: none;
+    transition: border-color .15s;
+    font-family: inherit
+  }
+
+  .form-input:focus {
+    border-color: var(--g5)
+  }
+
+  .form-select {
+    background: var(--ice);
+    border: 1.5px solid var(--g2);
+    border-radius: var(--btn-r);
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--t1);
+    outline: none;
+    font-family: inherit;
+    cursor: pointer
+  }
+
+  .form-select:focus {
+    border-color: var(--g5)
+  }
+
+  .subject-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 8px
+  }
+
+  .subj-opt {
+    border: 1.5px solid var(--g2);
+    border-radius: var(--btn-r);
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--g6);
+    background: var(--ice);
+    transition: all .15s
+  }
+
+  .subj-opt:hover,
+  .subj-opt.selected {
+    background: linear-gradient(135deg, var(--g1), var(--frost));
+    border-color: var(--g5);
+    color: var(--g7)
+  }
+
+  .subj-opt .subj-opt-icon {
+    font-size: 20px;
+    margin-bottom: 4px
+  }
+
+  .btn-submit {
+    width: 100%;
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    color: #fff;
+    padding: 14px;
+    border-radius: var(--btn-r);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    margin-top: 8px;
+    transition: opacity .15s
+  }
+
+  .btn-submit:hover {
+    opacity: .88
+  }
+
+  .success-msg {
+    display: none;
+    background: linear-gradient(135deg, #D6F0E8, #C8E6F0);
+    border: 1px solid #5CC8A0;
+    border-radius: var(--btn-r);
+    padding: 16px;
+    text-align: center;
+    color: #1A6B50;
+    font-weight: 600;
+    margin-top: 16px
+  }
+
+  /* PAYMENT */
+  .payment-wrap {
+    max-width: 560px;
+    margin: 0 auto
+  }
+
+  .plan-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px
+  }
+
+  .plan-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 2px solid var(--g2);
+    border-radius: var(--card-r);
+    padding: 20px;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center
+  }
+
+  .plan-card:hover,
+  .plan-card.selected {
+    border-color: var(--g5);
+    background: var(--frost)
+  }
+
+  .plan-card.popular {
+    border-color: var(--g6)
+  }
+
+  .plan-badge {
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 8px;
+    letter-spacing: .3px
+  }
+
+  .plan-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--g8);
+    margin-bottom: 4px
+  }
+
+  .plan-price {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--g6);
+    margin-bottom: 2px
+  }
+
+  .plan-price span {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--tm)
+  }
+
+  .plan-desc {
+    font-size: 12px;
+    color: var(--tm)
+  }
+
+  .payment-form {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--g2);
+    border-radius: var(--card-r);
+    padding: 28px
+  }
+
+  .card-visual {
+    background: linear-gradient(135deg, var(--g6), var(--g8));
+    border-radius: 12px;
+    padding: 24px;
+    color: #fff;
+    margin-bottom: 24px
+  }
+
+  .card-chip {
+    width: 36px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    margin-bottom: 20px
+  }
+
+  .card-number {
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    font-family: monospace
+  }
+
+  .card-bottom {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    opacity: .8
+  }
+
+  .pay-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #2ECC8A, #1A8A5A);
+    color: #fff;
+    padding: 14px;
+    border-radius: var(--btn-r);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    margin-top: 16px;
+    transition: opacity .15s
+  }
+
+  .pay-btn:hover {
+    opacity: .88
+  }
+
+  /* DASHBOARD */
+  .dash-wrap {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 62px)
+  }
+
+  .dash-sidebar {
+    background: rgba(255, 255, 255, 0.7);
+    border-right: 1px solid var(--g2);
+    padding: 24px 16px
+  }
+
+  .dash-user {
+    text-align: center;
+    padding: 16px 0 24px;
+    border-bottom: 1px solid var(--g1);
+    margin-bottom: 16px
+  }
+
+  .dash-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--g4), var(--g7));
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff
+  }
+
+  .dash-uname {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--g8)
+  }
+
+  .dash-urole {
+    font-size: 12px;
+    color: var(--t3);
+    margin-top: 2px
+  }
+
+  .dash-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--btn-r);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--t2);
+    transition: background .15s;
+    margin-bottom: 2px
+  }
+
+  .dash-nav-item:hover,
+  .dash-nav-item.active {
+    background: var(--g1);
+    color: var(--g7)
+  }
+
+  .dash-nav-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center
+  }
+
+  .dash-main {
+    padding: 28px;
+    background: transparent
+  }
+
+  .dash-header {
+    margin-bottom: 28px
+  }
+
+  .dash-greeting {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--g8)
+  }
+
+  .dash-date {
+    font-size: 13px;
+    color: var(--tm);
+    margin-top: 4px
+  }
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px
+  }
+
+  .metric-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--g2);
+    border-radius: 12px;
+    padding: 18px
+  }
+
+  .metric-label {
+    font-size: 11px;
+    color: var(--tm);
+    font-weight: 600;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    margin-bottom: 8px
+  }
+
+  .metric-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--g8)
+  }
+
+  .metric-change {
+    font-size: 11px;
+    color: #2A9E6A;
+    margin-top: 4px
+  }
+
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px
+  }
+
+  .dash-panel {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--g2);
+    border-radius: var(--card-r);
+    padding: 20px
+  }
+
+  .panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--g8);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between
+  }
+
+  .panel-title-icon {
+    font-size: 16px
+  }
+
+  .class-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--g1)
+  }
+
+  .class-item:last-child {
+    border-bottom: none
+  }
+
+  .class-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0
+  }
+
+  .class-info {
+    flex: 1
+  }
+
+  .class-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--g8)
+  }
+
+  .class-time {
+    font-size: 11px;
+    color: var(--tm)
+  }
+
+  .class-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px
+  }
+
+  .status-live {
+    background: #D6F0E8;
+    color: #1A6B50
+  }
+
+  .status-upcoming {
+    background: var(--g1);
+    color: var(--g6)
+  }
+
+  .status-done {
+    background: #F0F0F0;
+    color: #888
+  }
+
+  .video-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px
+  }
+
+  .video-thumb {
+    background: linear-gradient(135deg, var(--g1), var(--frost));
+    border-radius: 8px;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--g2)
+  }
+
+  .video-play {
+    width: 36px;
+    height: 36px;
+    background: rgba(46, 127, 166, 0.85);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center
+  }
+
+  .video-play-icon {
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 14px solid #fff;
+    margin-left: 3px
+  }
+
+  .video-label {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--g7);
+    background: rgba(255, 255, 255, 0.85);
+    padding: 2px 8px;
+    border-radius: 20px
+  }
+
+  .material-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--g1);
+    cursor: pointer
+  }
+
+  .material-item:last-child {
+    border-bottom: none
+  }
+
+  .material-icon {
+    width: 34px;
+    height: 34px;
+    background: var(--g1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0
+  }
+
+  .material-info {
+    flex: 1
+  }
+
+  .material-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--g8)
+  }
+
+  .material-size {
+    font-size: 11px;
+    color: var(--tm)
+  }
+
+  .material-dl {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--g6)
+  }
+
+  .chat-wrap {
+    display: flex;
+    flex-direction: column;
+    height: 260px
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 8px
+  }
+
+  .chat-bubble {
+    margin-bottom: 10px
+  }
+
+  .chat-bubble-inner {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    max-width: 85%;
+    line-height: 1.5
+  }
+
+  .chat-bubble.support .chat-bubble-inner {
+    background: var(--g1);
+    color: var(--g8);
+    border-bottom-left-radius: 2px
+  }
+
+  .chat-bubble.user {
+    text-align: right
+  }
+
+  .chat-bubble.user .chat-bubble-inner {
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    color: #fff;
+    border-bottom-right-radius: 2px
+  }
+
+  .chat-from {
+    font-size: 10px;
+    color: var(--tm);
+    margin-bottom: 3px
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--ice);
+    border: 1.5px solid var(--g2);
+    border-radius: var(--btn-r);
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--t1);
+    outline: none;
+    font-family: inherit
+  }
+
+  .chat-input:focus {
+    border-color: var(--g5)
+  }
+
+  .chat-send {
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: var(--btn-r);
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600
+  }
+
+  /* ADMIN */
+  .admin-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 2rem
+  }
+
+  .admin-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--g8);
+    margin-bottom: 6px
+  }
+
+  .admin-sub {
+    font-size: 14px;
+    color: var(--tm);
+    margin-bottom: 28px
+  }
+
+  .admin-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 24px;
+    width: fit-content;
+    border: 1px solid var(--g2)
+  }
+
+  .admin-tab {
+    padding: 8px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--t2);
+    cursor: pointer;
+    transition: all .15s
+  }
+
+  .admin-tab.active {
+    background: linear-gradient(135deg, var(--g5), var(--g7));
+    color: #fff
+  }
+
+  .admin-table {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--g2);
+    border-radius: var(--card-r);
+    overflow: hidden
+  }
+
+  .admin-table th {
+    background: var(--g1);
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--g7);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    text-align: left;
+    border-bottom: 1px solid var(--g2)
+  }
+
+  .admin-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--t1);
+    border-bottom: 1px solid var(--g1)
+  }
+
+  .admin-table tr:last-child td {
+    border-bottom: none
+  }
+
+  .admin-table tr:hover td {
+    background: var(--ice)
+  }
+
+  .status-badge {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700
+  }
+
+  .badge-active {
+    background: #D6F0E8;
+    color: #1A6B50
+  }
+
+  .badge-pending {
+    background: #FEF3CC;
+    color: #8A6200
+  }
+
+  .badge-paid {
+    background: var(--g1);
+    color: var(--g6)
+  }
+
+  .action-btn {
+    background: var(--g1);
+    color: var(--g6);
+    border: 1px solid var(--g3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer
+  }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: var(--g1);
+    border-radius: 20px;
+    height: 8px;
+    margin-top: 6px;
+    overflow: hidden
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, var(--g4), var(--g6))
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--tm);
+    margin-top: 4px
+  }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px
+  }
+
+  .feature-card {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--g2);
+    border-radius: var(--card-r);
+    padding: 24px;
+    text-align: center
+  }
+
+  .feature-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--g2), var(--g4));
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px
+  }
+
+  .feature-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--g8);
+    margin-bottom: 6px
+  }
+
+  .feature-desc {
+    font-size: 12px;
+    color: var(--tm);
+    line-height: 1.6
+  }
+
+  /* FOOTER */
+  footer {
+    background: rgba(255, 255, 255, 0.6);
+    border-top: 1px solid var(--g2);
+    padding: 32px 2rem;
+    margin-top: auto
+  }
+
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px
+  }
+
+  .footer-brand {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--g7)
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 20px
+  }
+
+  .footer-link {
+    font-size: 13px;
+    color: var(--tm);
+    cursor: pointer
+  }
+
+  .footer-copy {
+    font-size: 12px;
+    color: var(--tm);
+    margin-top: 8px
+  }
+
+  /* NOTIFICATION */
+  .notif {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--g3);
+    border-left: 4px solid var(--g5);
+    border-radius: 10px;
+    padding: 14px 18px;
+    min-width: 280px;
+    box-shadow: 0 8px 32px rgba(46, 127, 166, 0.18);
+    z-index: 999;
+    transform: translateX(120%);
+    transition: transform .35s cubic-bezier(0.34, 1.56, 0.64, 1)
+  }
+
+  .notif.show {
+    transform: translateX(0)
+  }
+
+  .notif-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--g8)
+  }
+
+  .notif-body {
+    font-size: 12px;
+    color: var(--tm);
+    margin-top: 3px
+  }
+
+  @media(max-width:768px) {
+    .hero h1 {
+      font-size: 30px
+    }
+
+    .form-row {
+      grid-template-columns: 1fr
+    }
+
+    .dash-wrap {
+      grid-template-columns: 1fr
+    }
+
+    .dash-sidebar {
+      display: none
+    }
+
+    .metrics-row {
+      grid-template-columns: repeat(2, 1fr)
+    }
+
+    .dash-grid {
+      grid-template-columns: 1fr
+    }
+
+    .video-grid {
+      grid-template-columns: 1fr
+    }
+  }
+</style>
+
+<div id="formula-bg" aria-hidden="true"></div>
+
+<!-- ████████████████████████████████████
+     LANDING PAGE — GODMODE EDITION
+     ████████████████████████████████████ -->
+<div id="page-landing">
+  <canvas id="land-canvas"></canvas>
+  <div class="land-grid"></div>
+  <div class="land-vignette"></div>
+  <div id="mouse-glow"></div>
+
+  <div class="land-content">
+    <!-- NAV -->
+    <nav class="land-nav">
+      <div class="land-logo">
+        <div class="land-logo-mark">T</div>
+        Tutor for All
+      </div>
+      <div class="land-nav-pill">
+        <button class="land-nav-btn" onclick="landScrollTo('features')">Features</button>
+        <button class="land-nav-btn" onclick="landScrollTo('subjects')">Subjects</button>
+        <button class="land-nav-btn" onclick="landScrollTo('reviews')">Reviews</button>
+      </div>
+      <button class="land-enter-btn" onclick="enterPlatform()">Enter Platform →</button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="land-hero" id="land-hero-sec">
+      <!-- Ambient orbs -->
+      <div class="land-orbs">
+        <div class="orb"
+          style="width:500px;height:500px;background:radial-gradient(circle,rgba(124,58,237,0.4),transparent);top:-100px;left:-100px;animation-duration:18s;">
+        </div>
+        <div class="orb"
+          style="width:400px;height:400px;background:radial-gradient(circle,rgba(249,115,22,0.3),transparent);bottom:-50px;right:-80px;animation-duration:22s;animation-delay:-8s;">
+        </div>
+        <div class="orb"
+          style="width:300px;height:300px;background:radial-gradient(circle,rgba(99,102,241,0.2),transparent);top:50%;left:20%;animation-duration:26s;animation-delay:-14s;">
+        </div>
+      </div>
+
+      <div class="land-badge">
+        <div class="land-badge-dot"></div>
+        Next-Gen Learning Platform · 2026
+      </div>
+
+      <h1 class="land-h1" id="land-h1">
+        <span class="accent">Master</span> Every<br>
+        <span class="outline-txt">Subject</span> Ever
+      </h1>
+
+      <p class="land-sub">
+        Chemistry, DBMS, Mathematics — and every subject the universe has to offer.
+        AI-powered tutors. Immersive assessments. Games that make you love learning.
+      </p>
+
+      <div class="land-ctas">
+        <button class="land-cta-primary" onclick="enterPlatform()">
+          🚀 Start Learning Free
+        </button>
+        <button class="land-cta-secondary" onclick="landScrollTo('subjects')">
+          Explore Subjects ↓
+        </button>
+      </div>
+
+      <div class="land-scroll">
+        <div class="scroll-line"></div>
+        Scroll to explore
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="land-stats">
+      <div class="land-stat">
+        <span class="land-stat-num" data-target="2400">0</span>
+        <div class="land-stat-lbl">Students Enrolled</div>
+      </div>
+      <div class="land-stat">
+        <span class="land-stat-num" data-target="48">0</span>
+        <div class="land-stat-lbl">Expert Tutors</div>
+      </div>
+      <div class="land-stat">
+        <span class="land-stat-num">4.9★</span>
+        <div class="land-stat-lbl">Average Rating</div>
+      </div>
+      <div class="land-stat">
+        <span class="land-stat-num" data-target="50">0</span>
+        <div class="land-stat-lbl">Subjects Covered</div>
+      </div>
+      <div class="land-stat">
+        <span class="land-stat-num" data-target="99">0</span>
+        <div class="land-stat-lbl">% Pass Rate</div>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="land-features" id="features">
+      <div class="land-feat" onmousemove="featGlow(event,this)">
+        <div class="land-feat-icon">🧠</div>
+        <div class="land-feat-name">AI-Powered Tutors</div>
+        <div class="land-feat-desc">Personalized learning paths built around your pace, strengths, and goals. Smarter
+          every session.</div>
+      </div>
+      <div class="land-feat" onmousemove="featGlow(event,this)">
+        <div class="land-feat-icon">🎮</div>
+        <div class="land-feat-name">Gamified Learning</div>
+        <div class="land-feat-desc">Flashcard flips, speed rounds, word jumbles — turn study time into play time with
+          real rewards.</div>
+      </div>
+      <div class="land-feat" onmousemove="featGlow(event,this)">
+        <div class="land-feat-icon">📊</div>
+        <div class="land-feat-name">Live Progress Tracking</div>
+        <div class="land-feat-desc">Visual dashboards, test scores, and session milestones. Know exactly where you
+          stand.</div>
+      </div>
+      <div class="land-feat" onmousemove="featGlow(event,this)">
+        <div class="land-feat-icon">⚡</div>
+        <div class="land-feat-name">Instant Assessments</div>
+        <div class="land-feat-desc">Take timed quizzes with instant feedback and detailed explanations after every
+          answer.</div>
+      </div>
+      <div class="land-feat" onmousemove="featGlow(event,this)">
+        <div class="land-feat-icon">🎥</div>
+        <div class="land-feat-name">HD Video Library</div>
+        <div class="land-feat-desc">Recorded and live classes available 24/7. Rewind, rewatch, revisit any concept
+          anytime.</div>
+      </div>
+      <div class="land-feat" onmousemove="featGlow(event,this)">
+        <div class="land-feat-icon">🔒</div>
+        <div class="land-feat-name">Secure & Affordable</div>
+        <div class="land-feat-desc">Plans starting at ₹999/mo. Encrypted payments, instant access, zero commitment
+          required.</div>
+      </div>
+    </div>
+
+    <!-- SUBJECTS -->
+    <div class="land-subjects" id="subjects">
+      <div class="land-s-title">Subjects That Matter</div>
+      <div class="land-s-sub">Choose your battlefield. Every subject comes fully loaded.</div>
+      <div class="land-subj-grid">
+        <div class="land-subj-card" style="--sc1:#0EA5E9;--sc2:#22D3EE" onclick="enterAndGo('subjects')">
+          <div class="sbar"></div>
+          <div class="land-subj-emoji">⚗️</div>
+          <div class="land-subj-name">Chemistry</div>
+          <div class="land-subj-desc">Organic reactions, thermodynamics, electrochemistry and lab simulations with
+            expert guidance.</div>
+          <div class="land-subj-tags">
+            <span class="land-tag">Organic</span><span class="land-tag">Inorganic</span>
+            <span class="land-tag">Physical</span><span class="land-tag">Analytical</span>
+          </div>
+          <div class="land-subj-cta">Explore Chemistry →</div>
+        </div>
+        <div class="land-subj-card" style="--sc1:#6366F1;--sc2:#8B5CF6" onclick="enterAndGo('subjects')">
+          <div class="sbar"></div>
+          <div class="land-subj-emoji">🗄️</div>
+          <div class="land-subj-name">DBMS</div>
+          <div class="land-subj-desc">SQL mastery, normalization, indexing, transaction management and real-world DB
+            design.</div>
+          <div class="land-subj-tags">
+            <span class="land-tag">SQL</span><span class="land-tag">Normalization</span>
+            <span class="land-tag">Transactions</span><span class="land-tag">ER Diagrams</span>
+          </div>
+          <div class="land-subj-cta">Explore DBMS →</div>
+        </div>
+        <div class="land-subj-card" style="--sc1:#10B981;--sc2:#34D399" onclick="enterAndGo('subjects')">
+          <div class="sbar"></div>
+          <div class="land-subj-emoji">📐</div>
+          <div class="land-subj-name">Mathematics</div>
+          <div class="land-subj-desc">Calculus, matrix algebra, integration, series, differential equations — full
+            competitive prep.</div>
+          <div class="land-subj-tags">
+            <span class="land-tag">Calculus</span><span class="land-tag">Matrices</span>
+            <span class="land-tag">Integration</span><span class="land-tag">Algebra</span>
+          </div>
+          <div class="land-subj-cta">Explore Mathematics →</div>
+        </div>
+        <div class="land-subj-card" style="--sc1:#F59E0B;--sc2:#FCD34D" onclick="enterAndGo('subjects')">
+          <div class="sbar"></div>
+          <div class="land-subj-emoji">🌌</div>
+          <div class="land-subj-name">+ Many More</div>
+          <div class="land-subj-desc">Physics, Biology, Economics, History, Programming — explore a full universe of
+            subjects.</div>
+          <div class="land-subj-tags">
+            <span class="land-tag">Physics</span><span class="land-tag">Biology</span>
+            <span class="land-tag">Economics</span><span class="land-tag">CS</span>
+          </div>
+          <div class="land-subj-cta">View All Subjects →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TESTIMONIALS TICKER -->
+    <div class="land-ticker" id="reviews">
+      <div class="land-ticker-title">What students are saying</div>
+      <div style="position:relative">
+        <div
+          style="position:absolute;left:0;top:0;bottom:0;width:80px;background:linear-gradient(90deg,var(--land-bg),transparent);z-index:2;pointer-events:none;">
+        </div>
+        <div
+          style="position:absolute;right:0;top:0;bottom:0;width:80px;background:linear-gradient(-90deg,var(--land-bg),transparent);z-index:2;pointer-events:none;">
+        </div>
+        <div class="ticker-track" id="ticker-track">
+          <!-- duplicated for infinite loop -->
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"My Chemistry marks went from 54% to 91% in 2 months. Dr. Riya's explanations are
+              next level."</div>
+            <div class="tick-author">PRIYA S. · BENGALURU</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"The DBMS game modes are insane — I learned SQL joins in one night playing Speed
+              Round."</div>
+            <div class="tick-author">ROHIT V. · MUMBAI</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"Flashcard Flip made matrix algebra actually fun. First time I've ever enjoyed
+              studying Maths."</div>
+            <div class="tick-author">ANANYA S. · DELHI</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"Background animations with formulas floating — I'm literally absorbing knowledge by
+              osmosis."</div>
+            <div class="tick-author">KIRAN P. · PUNE</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"Best ₹2499 I've ever spent. The dashboard shows my weak areas so I know exactly what
+              to fix."</div>
+            <div class="tick-author">MEERA N. · CHENNAI</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"Video library is 🔥 — I rewatched the organic reactions lecture 6 times. Cleared JEE
+              this year!"</div>
+            <div class="tick-author">ARJUN K. · HYDERABAD</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★☆</div>
+            <div class="tick-text">"Mixed assessment mode is brutal in the best way. Keeps me sharp across all 3
+              subjects."</div>
+            <div class="tick-author">DIVYA M. · KOLKATA</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"The True/False Blitz with streak bonuses — I played it 20 times in one sitting. Pure
+              addiction."</div>
+            <div class="tick-author">RAHUL T. · JAIPUR</div>
+          </div>
+          <!-- duplicate set for seamless loop -->
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"My Chemistry marks went from 54% to 91% in 2 months. Dr. Riya's explanations are
+              next level."</div>
+            <div class="tick-author">PRIYA S. · BENGALURU</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"The DBMS game modes are insane — I learned SQL joins in one night playing Speed
+              Round."</div>
+            <div class="tick-author">ROHIT V. · MUMBAI</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"Flashcard Flip made matrix algebra actually fun. First time I've ever enjoyed
+              studying Maths."</div>
+            <div class="tick-author">ANANYA S. · DELHI</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"Background animations with formulas floating — I'm literally absorbing knowledge by
+              osmosis."</div>
+            <div class="tick-author">KIRAN P. · PUNE</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"Best ₹2499 I've ever spent. The dashboard shows my weak areas so I know exactly what
+              to fix."</div>
+            <div class="tick-author">MEERA N. · CHENNAI</div>
+          </div>
+          <div class="tick-card">
+            <div class="tick-stars">★★★★★</div>
+            <div class="tick-text">"Video library is 🔥 — I rewatched the organic reactions lecture 6 times. Cleared JEE
+              this year!"</div>
+            <div class="tick-author">ARJUN K. · HYDERABAD</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINAL CTA -->
+    <div class="land-final">
+      <div class="land-final-h">Ready to become unstoppable?</div>
+      <div class="land-final-sub">Join 2,400+ students already learning smarter. Start free today.</div>
+      <button class="land-cta-primary" style="margin:0 auto" onclick="enterPlatform()">
+        🚀 Enter the Platform — It's Free
+      </button>
+    </div>
+
+  </div><!-- end land-content -->
+</div><!-- end page-landing -->
+
+<div class="app">
+
+  <nav>
+    <div class="logo">
+      <div class="logo-icon">T</div>
+      Tutor for All
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="showPage('home')">Home</button>
+      <button class="nav-link" onclick="showPage('subjects')">Subjects</button>
+      <button class="nav-link" onclick="showPage('enroll')">Enroll</button>
+      <button class="nav-link" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="nav-link" onclick="showPage('admin')">Admin</button>
+      <button class="nav-link" onclick="showPage('assessment')">Assess</button>
+      <button class="nav-link" onclick="showPage('games')">🎮 Games</button>
+    </div>
+    <button class="nav-cta" onclick="showPage('enroll')">Get Started</button>
+  </nav>
+
+  <div id="notif" class="notif">
+    <div class="notif-title" id="notif-title"></div>
+    <div class="notif-body" id="notif-body"></div>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div id="page-home" class="page active">
+    <div class="hero">
+      <div class="hero-badge">✦ Next-Gen Tuition Platform</div>
+      <h1>Learn from the Best<br><span>Subject Tutors</span> Online</h1>
+      <p>Connect with expert tutors in Chemistry, DBMS, and Mathematics. Personalized lessons, flexible schedules, and
+        guaranteed results.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showPage('subjects')">Browse Subjects</button>
+        <button class="btn-outline" onclick="showPage('enroll')">Apply for Classes</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num">2,400+</div>
+          <div class="stat-lbl">Students Enrolled</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">48</div>
+          <div class="stat-lbl">Expert Tutors</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">4.9★</div>
+          <div class="stat-lbl">Average Rating</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">3</div>
+          <div class="stat-lbl">Core Subjects</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:20px">
+      <div class="section-title">Why Choose Us</div>
+      <div class="section-h2">Everything you need to succeed</div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎓</div>
+          <div class="feature-name">Expert Tutors</div>
+          <div class="feature-desc">All tutors are vetted professionals with 5+ years experience and top ratings</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📹</div>
+          <div class="feature-name">Video Lessons</div>
+          <div class="feature-desc">Access recorded and live classes anytime from your personal dashboard</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📄</div>
+          <div class="feature-name">Study Materials</div>
+          <div class="feature-desc">Downloadable PDFs, notes, and practice papers for every topic</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💬</div>
+          <div class="feature-name">Live Support</div>
+          <div class="feature-desc">Chat with your tutor and support team anytime during your course</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-name">Progress Tracking</div>
+          <div class="feature-desc">Monitor your learning progress with visual reports and milestones</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <div class="feature-name">Secure Payments</div>
+          <div class="feature-desc">Safe, encrypted payment processing with flexible plan options</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="background:rgba(255,255,255,0.4);padding:40px 2rem;border-radius:20px;max-width:100%">
+      <div style="max-width:1100px;margin:0 auto">
+        <div class="section-title">Top Tutors</div>
+        <div class="section-h2" style="margin-bottom:28px">Meet our educators</div>
+        <div class="tutors-grid">
+          <div class="tutor-card">
+            <div class="tutor-avatar">RK</div>
+            <div class="tutor-name">Dr. Riya Kapoor</div>
+            <div class="tutor-subj">Chemistry</div>
+            <div class="tutor-rating">★★★★★</div>
+            <div class="tutor-exp">8 years · 320 students</div>
+          </div>
+          <div class="tutor-card">
+            <div class="tutor-avatar" style="background:linear-gradient(135deg,var(--g4),var(--g8))">AM</div>
+            <div class="tutor-name">Prof. Arjun Mehta</div>
+            <div class="tutor-subj">DBMS</div>
+            <div class="tutor-rating">★★★★★</div>
+            <div class="tutor-exp">6 years · 248 students</div>
+          </div>
+          <div class="tutor-card">
+            <div class="tutor-avatar" style="background:linear-gradient(135deg,var(--g3),var(--g6))">SP</div>
+            <div class="tutor-name">Ms. Sunita Patel</div>
+            <div class="tutor-subj">Mathematics</div>
+            <div class="tutor-rating">★★★★☆</div>
+            <div class="tutor-exp">10 years · 410 students</div>
+          </div>
+          <div class="tutor-card">
+            <div class="tutor-avatar" style="background:linear-gradient(135deg,var(--g2),var(--g7))">VR</div>
+            <div class="tutor-name">Dr. Vikas Rao</div>
+            <div class="tutor-subj">Chemistry</div>
+            <div class="tutor-rating">★★★★★</div>
+            <div class="tutor-exp">12 years · 500+ students</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBJECTS PAGE -->
+  <div id="page-subjects" class="page">
+    <div class="section">
+      <div class="section-title">Available Courses</div>
+      <div class="section-h2">Choose your subject</div>
+      <div class="section-sub">Explore our curated curriculum across three core subjects. Each course includes live
+        classes, recordings, and study materials.</div>
+      <div class="subjects-grid">
+        <div class="subject-card chem">
+          <div class="subj-icon chem">⚗️</div>
+          <div class="subj-name">Chemistry</div>
+          <div class="subj-desc">Master the fundamentals of organic and inorganic chemistry with expert guidance and lab
+            simulations.</div>
+          <div class="subj-topics">
+            <span class="topic-tag">Organic Chemistry</span>
+            <span class="topic-tag">Inorganic Chemistry</span>
+            <span class="topic-tag">Reaction Mechanisms</span>
+            <span class="topic-tag">Periodic Table</span>
+          </div>
+          <div class="subj-meta">
+            <div class="subj-price">₹2,999 <span>/ month</span></div>
+            <button class="enroll-btn" onclick="selectSubject('Chemistry');showPage('enroll')">Enroll Now</button>
+          </div>
+        </div>
+        <div class="subject-card dbms">
+          <div class="subj-icon dbms">🗄️</div>
+          <div class="subj-name">DBMS</div>
+          <div class="subj-desc">Understand data storage, relational models, SQL, and database design from industry
+            professionals.</div>
+          <div class="subj-topics">
+            <span class="topic-tag">Data Storage</span>
+            <span class="topic-tag">SQL Queries</span>
+            <span class="topic-tag">Normalization</span>
+            <span class="topic-tag">ER Diagrams</span>
+          </div>
+          <div class="subj-meta">
+            <div class="subj-price">₹2,499 <span>/ month</span></div>
+            <button class="enroll-btn" onclick="selectSubject('DBMS');showPage('enroll')">Enroll Now</button>
+          </div>
+        </div>
+        <div class="subject-card math">
+          <div class="subj-icon math">📐</div>
+          <div class="subj-name">Mathematics</div>
+          <div class="subj-desc">From integration to matrix algebra, build strong mathematical foundations for
+            competitive exams and engineering.</div>
+          <div class="subj-topics">
+            <span class="topic-tag">Integration</span>
+            <span class="topic-tag">Derivation</span>
+            <span class="topic-tag">Matrix Algebra</span>
+            <span class="topic-tag">Calculus</span>
+          </div>
+          <div class="subj-meta">
+            <div class="subj-price">₹2,799 <span>/ month</span></div>
+            <button class="enroll-btn" onclick="selectSubject('Mathematics');showPage('enroll')">Enroll Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENROLL PAGE -->
+  <div id="page-enroll" class="page">
+    <div class="section" style="padding-top:40px">
+      <div class="section-title">Registration</div>
+      <div class="section-h2" style="margin-bottom:6px">Apply for Classes</div>
+      <p style="color:var(--tm);font-size:14px;margin-bottom:32px">Fill in your details and we'll get you started within
+        24 hours.</p>
+      <div class="form-wrap">
+        <div class="form-title">Enrollment Application</div>
+        <div class="form-sub">All fields are required. Your data is securely stored.</div>
+        <div class="form-group">
+          <label class="form-label">Select Subject</label>
+          <div class="subject-selector">
+            <div class="subj-opt" id="opt-chem" onclick="toggleSubject('Chemistry')">
+              <div class="subj-opt-icon">⚗️</div>Chemistry
+            </div>
+            <div class="subj-opt" id="opt-dbms" onclick="toggleSubject('DBMS')">
+              <div class="subj-opt-icon">🗄️</div>DBMS
+            </div>
+            <div class="subj-opt" id="opt-math" onclick="toggleSubject('Mathematics')">
+              <div class="subj-opt-icon">📐</div>Mathematics
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Full Name</label>
+            <input class="form-input" type="text" placeholder="e.g. Priya Sharma" id="f-name">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Phone Number</label>
+            <input class="form-input" type="tel" placeholder="+91 98765 43210" id="f-phone">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">City</label>
+            <input class="form-input" type="text" placeholder="e.g. Bengaluru" id="f-city">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Budget (₹/month)</label>
+            <select class="form-select" id="f-budget">
+              <option>₹1,000 – ₹2,000</option>
+              <option>₹2,000 – ₹3,000</option>
+              <option>₹3,000 – ₹5,000</option>
+              <option>₹5,000+</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Classes Available</label>
+            <select class="form-select" id="f-timing">
+              <option>Morning (6–9 AM)</option>
+              <option>Afternoon (12–3 PM)</option>
+              <option>Evening (5–8 PM)</option>
+              <option>Flexible / Weekends</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Hours per Week</label>
+            <select class="form-select" id="f-hours">
+              <option>2–4 hours</option>
+              <option>4–6 hours</option>
+              <option>6–8 hours</option>
+              <option>8+ hours</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label">Additional Notes (optional)</label>
+          <textarea class="form-input" rows="3" placeholder="Any specific topics or requirements..."
+            style="resize:vertical" id="f-notes"></textarea>
+        </div>
+        <button class="btn-submit" onclick="submitEnroll()">Submit Application →</button>
+        <div class="success-msg" id="enroll-success">
+          ✓ Application submitted successfully! Redirecting to payment...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT PAGE -->
+  <div id="page-payment" class="page">
+    <div class="section" style="padding-top:40px">
+      <div class="section-title">Secure Checkout</div>
+      <div class="section-h2" style="margin-bottom:6px">Choose Your Plan</div>
+      <p style="color:var(--tm);font-size:14px;margin-bottom:32px">All plans include video lessons, study materials, and
+        tutor support.</p>
+      <div class="payment-wrap">
+        <div class="plan-cards">
+          <div class="plan-card" id="plan-basic" onclick="selectPlan('basic')">
+            <div class="plan-name">Basic</div>
+            <div class="plan-price">₹999 <span>/mo</span></div>
+            <div class="plan-desc">8 hrs/week · Group sessions</div>
+          </div>
+          <div class="plan-card popular selected" id="plan-pro" onclick="selectPlan('pro')">
+            <div class="plan-badge">POPULAR</div>
+            <div class="plan-name">Pro</div>
+            <div class="plan-price">₹2,499 <span>/mo</span></div>
+            <div class="plan-desc">12 hrs/week · 1-on-1 sessions</div>
+          </div>
+          <div class="plan-card" id="plan-elite" onclick="selectPlan('elite')">
+            <div class="plan-name">Elite</div>
+            <div class="plan-price">₹4,999 <span>/mo</span></div>
+            <div class="plan-desc">Unlimited · Priority support</div>
+          </div>
+        </div>
+        <div class="payment-form">
+          <div class="card-visual">
+            <div class="card-chip"></div>
+            <div class="card-number" id="card-display">•••• •••• •••• ••••</div>
+            <div class="card-bottom">
+              <div>
+                <div style="font-size:10px;opacity:.7;margin-bottom:2px">CARDHOLDER</div>
+                <div id="card-name-display">YOUR NAME</div>
+              </div>
+              <div>
+                <div style="font-size:10px;opacity:.7;margin-bottom:2px">EXPIRES</div>
+                <div id="card-exp-display">MM/YY</div>
+              </div>
+              <div style="font-size:24px;font-weight:700;opacity:.4">VISA</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cardholder Name</label>
+            <input class="form-input" type="text" placeholder="Name on card" id="pay-name"
+              oninput="document.getElementById('card-name-display').textContent=this.value.toUpperCase()||'YOUR NAME'">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Card Number</label>
+            <input class="form-input" type="text" placeholder="1234 5678 9012 3456" maxlength="19" id="pay-card"
+              oninput="formatCard(this)">
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Expiry Date</label>
+              <input class="form-input" type="text" placeholder="MM/YY" maxlength="5" id="pay-exp"
+                oninput="document.getElementById('card-exp-display').textContent=this.value||'MM/YY'">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">CVV</label>
+              <input class="form-input" type="password" placeholder="•••" maxlength="3" id="pay-cvv">
+            </div>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding:14px;background:var(--g1);border-radius:var(--btn-r)">
+            <span style="font-size:13px;color:var(--tm)">Total Amount</span>
+            <span style="font-size:20px;font-weight:700;color:var(--g7)" id="plan-total">₹2,499/mo</span>
+          </div>
+          <button class="pay-btn" onclick="processPayment()">🔒 Pay Securely Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page">
+    <div class="dash-wrap">
+      <div class="dash-sidebar">
+        <div class="dash-user">
+          <div class="dash-avatar">PS</div>
+          <div class="dash-uname">Priya Sharma</div>
+          <div class="dash-urole">Student · Pro Plan</div>
+        </div>
+        <div class="dash-nav-item active" onclick="setDashTab(this,'tab-overview')"><span
+            class="dash-nav-icon">📊</span> Overview</div>
+        <div class="dash-nav-item" onclick="setDashTab(this,'tab-classes')"><span class="dash-nav-icon">📚</span> My
+          Classes</div>
+        <div class="dash-nav-item" onclick="setDashTab(this,'tab-videos')"><span class="dash-nav-icon">📹</span>
+          Training Videos</div>
+        <div class="dash-nav-item" onclick="setDashTab(this,'tab-materials')"><span class="dash-nav-icon">📄</span>
+          Study Materials</div>
+        <div class="dash-nav-item" onclick="setDashTab(this,'tab-progress')"><span class="dash-nav-icon">📈</span>
+          Progress</div>
+        <div class="dash-nav-item" onclick="setDashTab(this,'tab-chat')"><span class="dash-nav-icon">💬</span> Support
+          Chat</div>
+        <div class="dash-nav-item" onclick="showPage('assessment')"><span class="dash-nav-icon">📝</span> Assessments
+        </div>
+        <div class="dash-nav-item" onclick="showPage('games')"><span class="dash-nav-icon">🎮</span> Fun Games</div>
+        <div class="dash-nav-item" style="margin-top:auto;color:var(--g5)"
+          onclick="showNotif('Session','Your Chemistry class starts in 15 min!')"><span class="dash-nav-icon">🔔</span>
+          Notifications</div>
+      </div>
+      <div class="dash-main">
+        <div class="dash-header">
+          <div class="dash-greeting">Good morning, Priya 👋</div>
+          <div class="dash-date">Saturday, 18 April 2026 · Pro Plan Active</div>
+        </div>
+
+        <!-- TAB: OVERVIEW -->
+        <div id="tab-overview">
+          <div class="metrics-row">
+            <div class="metric-card">
+              <div class="metric-label">Classes Attended</div>
+              <div class="metric-value">24</div>
+              <div class="metric-change">↑ 4 this week</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Hours Learned</div>
+              <div class="metric-value">48h</div>
+              <div class="metric-change">↑ 6h this week</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Avg. Score</div>
+              <div class="metric-value">87%</div>
+              <div class="metric-change">↑ 3% vs last month</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Subjects Active</div>
+              <div class="metric-value">3</div>
+              <div class="metric-change">All enrolled</div>
+            </div>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-panel">
+              <div class="panel-title">Upcoming Classes <span class="panel-title-icon">📅</span></div>
+              <div class="class-item">
+                <div class="class-dot" style="background:var(--g5)"></div>
+                <div class="class-info">
+                  <div class="class-name">Organic Chemistry</div>
+                  <div class="class-time">Today · 5:00 PM – 6:30 PM</div>
+                </div><span class="class-status status-live">Live</span>
+              </div>
+              <div class="class-item">
+                <div class="class-dot" style="background:var(--g4)"></div>
+                <div class="class-info">
+                  <div class="class-name">DBMS – SQL Queries</div>
+                  <div class="class-time">Tomorrow · 4:00 PM</div>
+                </div><span class="class-status status-upcoming">Upcoming</span>
+              </div>
+              <div class="class-item">
+                <div class="class-dot" style="background:var(--g3)"></div>
+                <div class="class-info">
+                  <div class="class-name">Matrix Algebra</div>
+                  <div class="class-time">Mon · 6:00 PM</div>
+                </div><span class="class-status status-upcoming">Upcoming</span>
+              </div>
+              <div class="class-item">
+                <div class="class-dot" style="background:#ccc"></div>
+                <div class="class-info">
+                  <div class="class-name">Inorganic Chemistry</div>
+                  <div class="class-time">Wed · 5:00 PM</div>
+                </div><span class="class-status status-done">Completed</span>
+              </div>
+            </div>
+            <div class="dash-panel">
+              <div class="panel-title">Recent Videos <span class="panel-title-icon">🎬</span></div>
+              <div class="video-grid">
+                <div class="video-thumb">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Organic Rxn</div>
+                </div>
+                <div class="video-thumb" style="background:linear-gradient(135deg,var(--frost),var(--g2))">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">SQL Joins</div>
+                </div>
+                <div class="video-thumb" style="background:linear-gradient(135deg,var(--g1),var(--g3))">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Integration</div>
+                </div>
+                <div class="video-thumb" style="background:linear-gradient(135deg,var(--g2),var(--frost))">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Matrix Ops</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: CLASSES -->
+        <div id="tab-classes" style="display:none">
+          <div class="dash-panel">
+            <div class="panel-title">My Enrolled Classes</div>
+            <div class="class-item">
+              <div class="class-dot" style="background:var(--g5)"></div>
+              <div class="class-info">
+                <div class="class-name">Organic Chemistry · Dr. Riya Kapoor</div>
+                <div class="class-time">Mon, Wed, Fri · 5:00–6:30 PM · 12 sessions completed</div>
+              </div><span class="class-status status-active badge-active">Active</span>
+            </div>
+            <div class="class-item">
+              <div class="class-dot" style="background:var(--g4)"></div>
+              <div class="class-info">
+                <div class="class-name">DBMS – Data Storage · Prof. Arjun Mehta</div>
+                <div class="class-time">Tue, Thu · 4:00–5:30 PM · 8 sessions completed</div>
+              </div><span class="class-status badge-active" style="background:#D6F0E8;color:#1A6B50">Active</span>
+            </div>
+            <div class="class-item">
+              <div class="class-dot" style="background:var(--g3)"></div>
+              <div class="class-info">
+                <div class="class-name">Mathematics – Integration & Matrix · Ms. Sunita Patel</div>
+                <div class="class-time">Sat, Sun · 10:00 AM–12:00 PM · 4 sessions completed</div>
+              </div><span class="class-status badge-active" style="background:#D6F0E8;color:#1A6B50">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: VIDEOS -->
+        <div id="tab-videos" style="display:none">
+          <div class="dash-panel">
+            <div class="panel-title">Training Videos Library</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:4px">
+              <div style="cursor:pointer"
+                onclick="showNotif('Video','Organic Chemistry – Reaction Mechanisms is playing...')">
+                <div class="video-thumb" style="margin-bottom:8px">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Lesson 1</div>
+                </div>
+                <div style="font-size:12px;font-weight:600;color:var(--g8)">Reaction Mechanisms</div>
+                <div style="font-size:11px;color:var(--tm)">Chemistry · 45 min</div>
+              </div>
+              <div style="cursor:pointer"
+                onclick="showNotif('Video','Inorganic Chemistry – Periodic Trends is playing...')">
+                <div class="video-thumb"
+                  style="margin-bottom:8px;background:linear-gradient(135deg,var(--frost),var(--g2))">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Lesson 2</div>
+                </div>
+                <div style="font-size:12px;font-weight:600;color:var(--g8)">Periodic Trends</div>
+                <div style="font-size:11px;color:var(--tm)">Chemistry · 38 min</div>
+              </div>
+              <div style="cursor:pointer" onclick="showNotif('Video','SQL Joins & Indexing is playing...')">
+                <div class="video-thumb"
+                  style="margin-bottom:8px;background:linear-gradient(135deg,var(--g1),var(--g3))">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Lesson 3</div>
+                </div>
+                <div style="font-size:12px;font-weight:600;color:var(--g8)">SQL Joins</div>
+                <div style="font-size:11px;color:var(--tm)">DBMS · 52 min</div>
+              </div>
+              <div style="cursor:pointer" onclick="showNotif('Video','Integration Techniques is playing...')">
+                <div class="video-thumb"
+                  style="margin-bottom:8px;background:linear-gradient(135deg,var(--g2),var(--g5))">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Lesson 4</div>
+                </div>
+                <div style="font-size:12px;font-weight:600;color:var(--g8)">Integration Basics</div>
+                <div style="font-size:11px;color:var(--tm)">Maths · 60 min</div>
+              </div>
+              <div style="cursor:pointer" onclick="showNotif('Video','Matrix Operations is playing...')">
+                <div class="video-thumb"
+                  style="margin-bottom:8px;background:linear-gradient(135deg,var(--frost),var(--g4))">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Lesson 5</div>
+                </div>
+                <div style="font-size:12px;font-weight:600;color:var(--g8)">Matrix Operations</div>
+                <div style="font-size:11px;color:var(--tm)">Maths · 48 min</div>
+              </div>
+              <div style="cursor:pointer" onclick="showNotif('Video','ER Diagrams is playing...')">
+                <div class="video-thumb"
+                  style="margin-bottom:8px;background:linear-gradient(135deg,var(--g1),var(--g2))">
+                  <div class="video-play">
+                    <div class="video-play-icon"></div>
+                  </div>
+                  <div class="video-label">Lesson 6</div>
+                </div>
+                <div style="font-size:12px;font-weight:600;color:var(--g8)">ER Diagrams</div>
+                <div style="font-size:11px;color:var(--tm)">DBMS · 35 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: MATERIALS -->
+        <div id="tab-materials" style="display:none">
+          <div class="dash-panel">
+            <div class="panel-title">Study Materials</div>
+            <div class="material-item" onclick="showNotif('Download','Organic Chemistry Notes.pdf downloaded!')">
+              <div class="material-icon">📄</div>
+              <div class="material-info">
+                <div class="material-name">Organic Chemistry Notes</div>
+                <div class="material-size">PDF · 2.4 MB · Chapter 1–6</div>
+              </div><span class="material-dl">↓ Download</span>
+            </div>
+            <div class="material-item" onclick="showNotif('Download','Inorganic Chemistry Worksheet.pdf downloaded!')">
+              <div class="material-icon">📝</div>
+              <div class="material-info">
+                <div class="material-name">Inorganic Chemistry Worksheet</div>
+                <div class="material-size">PDF · 1.1 MB · Practice Problems</div>
+              </div><span class="material-dl">↓ Download</span>
+            </div>
+            <div class="material-item" onclick="showNotif('Download','DBMS Concepts Guide.pdf downloaded!')">
+              <div class="material-icon">🗄️</div>
+              <div class="material-info">
+                <div class="material-name">DBMS Concepts Guide</div>
+                <div class="material-size">PDF · 3.8 MB · Complete Reference</div>
+              </div><span class="material-dl">↓ Download</span>
+            </div>
+            <div class="material-item" onclick="showNotif('Download','SQL Practice Problems.pdf downloaded!')">
+              <div class="material-icon">💾</div>
+              <div class="material-info">
+                <div class="material-name">SQL Practice Problems</div>
+                <div class="material-size">PDF · 0.9 MB · 50 Questions</div>
+              </div><span class="material-dl">↓ Download</span>
+            </div>
+            <div class="material-item" onclick="showNotif('Download','Integration Formulas.pdf downloaded!')">
+              <div class="material-icon">📐</div>
+              <div class="material-info">
+                <div class="material-name">Integration Formula Sheet</div>
+                <div class="material-size">PDF · 0.5 MB · Quick Reference</div>
+              </div><span class="material-dl">↓ Download</span>
+            </div>
+            <div class="material-item" onclick="showNotif('Download','Matrix Algebra Notes.pdf downloaded!')">
+              <div class="material-icon">📊</div>
+              <div class="material-info">
+                <div class="material-name">Matrix Algebra Notes</div>
+                <div class="material-size">PDF · 1.7 MB · With Solved Examples</div>
+              </div><span class="material-dl">↓ Download</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: PROGRESS -->
+        <div id="tab-progress" style="display:none">
+          <div class="dash-grid">
+            <div class="dash-panel">
+              <div class="panel-title">Subject Progress</div>
+              <div style="margin-bottom:18px">
+                <div
+                  style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--g8);margin-bottom:4px">
+                  <span>Chemistry</span><span>72%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" style="width:72%"></div>
+                </div>
+                <div class="progress-label"><span>12/18 sessions</span><span>On track</span></div>
+              </div>
+              <div style="margin-bottom:18px">
+                <div
+                  style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--g8);margin-bottom:4px">
+                  <span>DBMS</span><span>55%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" style="width:55%"></div>
+                </div>
+                <div class="progress-label"><span>8/14 sessions</span><span>Good pace</span></div>
+              </div>
+              <div>
+                <div
+                  style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--g8);margin-bottom:4px">
+                  <span>Mathematics</span><span>40%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" style="width:40%"></div>
+                </div>
+                <div class="progress-label"><span>4/10 sessions</span><span>Just started</span></div>
+              </div>
+            </div>
+            <div class="dash-panel">
+              <div class="panel-title">Test Scores</div>
+              <div class="class-item">
+                <div class="class-dot" style="background:var(--g5)"></div>
+                <div class="class-info">
+                  <div class="class-name">Chemistry Quiz 1</div>
+                  <div class="class-time">14 Apr · 30 questions</div>
+                </div><span class="class-status badge-active" style="background:var(--g1);color:var(--g7)">92%</span>
+              </div>
+              <div class="class-item">
+                <div class="class-dot" style="background:var(--g4)"></div>
+                <div class="class-info">
+                  <div class="class-name">DBMS Mid-term</div>
+                  <div class="class-time">10 Apr · 50 questions</div>
+                </div><span class="class-status badge-active" style="background:var(--g1);color:var(--g7)">78%</span>
+              </div>
+              <div class="class-item">
+                <div class="class-dot" style="background:var(--g3)"></div>
+                <div class="class-info">
+                  <div class="class-name">Maths – Integration Test</div>
+                  <div class="class-time">6 Apr · 20 problems</div>
+                </div><span class="class-status badge-active" style="background:var(--g1);color:var(--g7)">85%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: CHAT -->
+        <div id="tab-chat" style="display:none">
+          <div class="dash-panel" style="max-width:500px">
+            <div class="panel-title">Support Chat <span
+                style="font-size:11px;background:#D6F0E8;color:#1A6B50;padding:3px 10px;border-radius:20px;font-weight:600">Online</span>
+            </div>
+            <div class="chat-wrap">
+              <div class="chat-messages" id="chat-msgs">
+                <div class="chat-bubble support">
+                  <div class="chat-from">Support Team</div>
+                  <div class="chat-bubble-inner">Hello Priya! How can we help you today?</div>
+                </div>
+                <div class="chat-bubble user">
+                  <div class="chat-from">You</div>
+                  <div class="chat-bubble-inner">Hi! I have a doubt in today's Chemistry class.</div>
+                </div>
+                <div class="chat-bubble support">
+                  <div class="chat-from">Support Team</div>
+                  <div class="chat-bubble-inner">Of course! Please go ahead and describe your doubt. Dr. Riya is also
+                    available now.</div>
+                </div>
+              </div>
+              <div class="chat-input-row">
+                <input class="chat-input" type="text" placeholder="Type your message..." id="chat-input"
+                  onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="chat-send" onclick="sendChat()">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PAGE -->
+  <div id="page-admin" class="page">
+    <div class="admin-wrap">
+      <div class="admin-title">Admin Panel</div>
+      <div class="admin-sub">Manage students, tutors, content, and platform activity</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px">
+        <div class="metric-card">
+          <div class="metric-label">Total Students</div>
+          <div class="metric-value">2,418</div>
+          <div class="metric-change">↑ 42 this week</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Active Tutors</div>
+          <div class="metric-value">48</div>
+          <div class="metric-change">↑ 3 new</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Revenue (Apr)</div>
+          <div class="metric-value">₹4.2L</div>
+          <div class="metric-change">↑ 18% vs Mar</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Classes Today</div>
+          <div class="metric-value">24</div>
+          <div class="metric-change">8 live now</div>
+        </div>
+      </div>
+      <div class="admin-tabs">
+        <div class="admin-tab active" onclick="setAdminTab(this,'at-students')">Students</div>
+        <div class="admin-tab" onclick="setAdminTab(this,'at-tutors')">Tutors</div>
+        <div class="admin-tab" onclick="setAdminTab(this,'at-content')">Content</div>
+        <div class="admin-tab" onclick="setAdminTab(this,'at-payments')">Payments</div>
+      </div>
+
+      <div id="at-students">
+        <table class="admin-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>City</th>
+              <th>Subject</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Priya Sharma</strong><br><span style="font-size:11px;color:var(--tm)">+91 98765 43210</span>
+              </td>
+              <td>Bengaluru</td>
+              <td>Chemistry, Maths</td>
+              <td>Pro</td>
+              <td><span class="status-badge badge-active">Active</span></td>
+              <td><button class="action-btn">View</button></td>
+            </tr>
+            <tr>
+              <td><strong>Rohit Verma</strong><br><span style="font-size:11px;color:var(--tm)">+91 87654 32109</span>
+              </td>
+              <td>Mumbai</td>
+              <td>DBMS</td>
+              <td>Basic</td>
+              <td><span class="status-badge badge-active">Active</span></td>
+              <td><button class="action-btn">View</button></td>
+            </tr>
+            <tr>
+              <td><strong>Ananya Singh</strong><br><span style="font-size:11px;color:var(--tm)">+91 76543 21098</span>
+              </td>
+              <td>Delhi</td>
+              <td>Mathematics</td>
+              <td>Elite</td>
+              <td><span class="status-badge badge-pending">Pending</span></td>
+              <td><button class="action-btn" onclick="showNotif('Admin','Ananya Singh approved!')">Approve</button></td>
+            </tr>
+            <tr>
+              <td><strong>Kiran Patil</strong><br><span style="font-size:11px;color:var(--tm)">+91 65432 10987</span>
+              </td>
+              <td>Pune</td>
+              <td>Chemistry</td>
+              <td>Pro</td>
+              <td><span class="status-badge badge-active">Active</span></td>
+              <td><button class="action-btn">View</button></td>
+            </tr>
+            <tr>
+              <td><strong>Meera Nair</strong><br><span style="font-size:11px;color:var(--tm)">+91 54321 09876</span>
+              </td>
+              <td>Chennai</td>
+              <td>DBMS, Chemistry</td>
+              <td>Basic</td>
+              <td><span class="status-badge badge-pending">Pending</span></td>
+              <td><button class="action-btn" onclick="showNotif('Admin','Meera Nair approved!')">Approve</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="at-tutors" style="display:none">
+        <table class="admin-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>Tutor</th>
+              <th>Subject</th>
+              <th>Students</th>
+              <th>Rating</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Dr. Riya Kapoor</strong></td>
+              <td>Chemistry</td>
+              <td>320</td>
+              <td>★ 4.9</td>
+              <td><span class="status-badge badge-active">Active</span></td>
+              <td><button class="action-btn">Manage</button></td>
+            </tr>
+            <tr>
+              <td><strong>Prof. Arjun Mehta</strong></td>
+              <td>DBMS</td>
+              <td>248</td>
+              <td>★ 4.8</td>
+              <td><span class="status-badge badge-active">Active</span></td>
+              <td><button class="action-btn">Manage</button></td>
+            </tr>
+            <tr>
+              <td><strong>Ms. Sunita Patel</strong></td>
+              <td>Mathematics</td>
+              <td>410</td>
+              <td>★ 4.7</td>
+              <td><span class="status-badge badge-active">Active</span></td>
+              <td><button class="action-btn">Manage</button></td>
+            </tr>
+            <tr>
+              <td><strong>Dr. Vikas Rao</strong></td>
+              <td>Chemistry</td>
+              <td>502</td>
+              <td>★ 5.0</td>
+              <td><span class="status-badge badge-active">Active</span></td>
+              <td><button class="action-btn">Manage</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="at-content" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="dash-panel">
+            <div class="panel-title">Video Lessons</div>
+            <div class="material-item">
+              <div class="material-icon">📹</div>
+              <div class="material-info">
+                <div class="material-name">Reaction Mechanisms</div>
+                <div class="material-size">Chemistry · 45 min · 1,200 views</div>
+              </div><button class="action-btn">Edit</button>
+            </div>
+            <div class="material-item">
+              <div class="material-icon">📹</div>
+              <div class="material-info">
+                <div class="material-name">SQL Joins & Index</div>
+                <div class="material-size">DBMS · 52 min · 890 views</div>
+              </div><button class="action-btn">Edit</button>
+            </div>
+            <div class="material-item">
+              <div class="material-icon">📹</div>
+              <div class="material-info">
+                <div class="material-name">Integration Basics</div>
+                <div class="material-size">Maths · 60 min · 740 views</div>
+              </div><button class="action-btn">Edit</button>
+            </div>
+            <button class="action-btn" style="margin-top:12px;padding:8px 16px"
+              onclick="showNotif('Admin','Upload video dialog opened!')">+ Upload Video</button>
+          </div>
+          <div class="dash-panel">
+            <div class="panel-title">Study Materials</div>
+            <div class="material-item">
+              <div class="material-icon">📄</div>
+              <div class="material-info">
+                <div class="material-name">Organic Chemistry Notes</div>
+                <div class="material-size">PDF · 2.4 MB · 580 downloads</div>
+              </div><button class="action-btn">Edit</button>
+            </div>
+            <div class="material-item">
+              <div class="material-icon">📄</div>
+              <div class="material-info">
+                <div class="material-name">DBMS Concepts Guide</div>
+                <div class="material-size">PDF · 3.8 MB · 430 downloads</div>
+              </div><button class="action-btn">Edit</button>
+            </div>
+            <div class="material-item">
+              <div class="material-icon">📄</div>
+              <div class="material-info">
+                <div class="material-name">Matrix Algebra Notes</div>
+                <div class="material-size">PDF · 1.7 MB · 310 downloads</div>
+              </div><button class="action-btn">Edit</button>
+            </div>
+            <button class="action-btn" style="margin-top:12px;padding:8px 16px"
+              onclick="showNotif('Admin','Upload material dialog opened!')">+ Upload Material</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="at-payments" style="display:none">
+        <table class="admin-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Plan</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Priya Sharma</td>
+              <td>Pro</td>
+              <td>₹2,499</td>
+              <td>1 Apr 2026</td>
+              <td><span class="status-badge badge-paid">Paid</span></td>
+            </tr>
+            <tr>
+              <td>Rohit Verma</td>
+              <td>Basic</td>
+              <td>₹999</td>
+              <td>3 Apr 2026</td>
+              <td><span class="status-badge badge-paid">Paid</span></td>
+            </tr>
+            <tr>
+              <td>Ananya Singh</td>
+              <td>Elite</td>
+              <td>₹4,999</td>
+              <td>5 Apr 2026</td>
+              <td><span class="status-badge badge-pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td>Kiran Patil</td>
+              <td>Pro</td>
+              <td>₹2,499</td>
+              <td>7 Apr 2026</td>
+              <td><span class="status-badge badge-paid">Paid</span></td>
+            </tr>
+            <tr>
+              <td>Meera Nair</td>
+              <td>Basic</td>
+              <td>₹999</td>
+              <td>10 Apr 2026</td>
+              <td><span class="status-badge badge-pending">Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSESSMENT PAGE -->
+  <div id="page-assessment" class="page">
+    <div class="section" style="padding-top:40px">
+      <div class="section-title">Test Yourself</div>
+      <div class="section-h2">Assessments & Quizzes</div>
+      <div class="section-sub">Choose a subject and start your timed quiz. Instant results with detailed feedback.</div>
+
+      <!-- Subject picker -->
+      <div id="assess-picker" style="display:block">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:32px">
+          <div class="subject-card chem" style="cursor:pointer" onclick="startAssessment('chemistry')">
+            <div class="subj-icon chem">⚗️</div>
+            <div class="subj-name">Chemistry Quiz</div>
+            <div class="subj-desc">Organic & Inorganic reactions, pH, thermodynamics and more.</div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+              <span class="topic-tag">15 Questions</span><span class="topic-tag">20 mins</span><span
+                class="topic-tag">MCQ</span>
+            </div>
+          </div>
+          <div class="subject-card dbms" style="cursor:pointer" onclick="startAssessment('dbms')">
+            <div class="subj-icon dbms">🗄️</div>
+            <div class="subj-name">DBMS Quiz</div>
+            <div class="subj-desc">SQL, normalization, transactions, indexing and ER diagrams.</div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+              <span class="topic-tag">15 Questions</span><span class="topic-tag">20 mins</span><span
+                class="topic-tag">MCQ</span>
+            </div>
+          </div>
+          <div class="subject-card math" style="cursor:pointer" onclick="startAssessment('math')">
+            <div class="subj-icon math">📐</div>
+            <div class="subj-name">Mathematics Quiz</div>
+            <div class="subj-desc">Calculus, integration, matrix algebra and limits.</div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+              <span class="topic-tag">15 Questions</span><span class="topic-tag">20 mins</span><span
+                class="topic-tag">MCQ</span>
+            </div>
+          </div>
+          <div
+            style="background:rgba(255,255,255,0.85);border:1px solid var(--g2);border-radius:var(--card-r);padding:24px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s"
+            onclick="startAssessment('mixed')"
+            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(46,127,166,0.18)'"
+            onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div
+              style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--g3),var(--g5),var(--g7))">
+            </div>
+            <div class="subj-icon" style="background:linear-gradient(135deg,var(--g1),var(--g4))">🎯</div>
+            <div class="subj-name">Mixed Assessment</div>
+            <div class="subj-desc">Questions from all three subjects — the ultimate challenge!</div>
+            <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+              <span class="topic-tag">20 Questions</span><span class="topic-tag">25 mins</span><span
+                class="topic-tag">Mixed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Past results -->
+        <div class="dash-panel" style="max-width:700px">
+          <div class="panel-title">Past Results 📊</div>
+          <div class="class-item">
+            <div class="class-dot" style="background:var(--g5)"></div>
+            <div class="class-info">
+              <div class="class-name">Chemistry Quiz</div>
+              <div class="class-time">14 Apr 2026 · 15 questions · 18 min</div>
+            </div><span class="class-status"
+              style="background:var(--g1);color:var(--g7);font-weight:700;padding:3px 10px;border-radius:20px;font-size:11px">92%</span>
+          </div>
+          <div class="class-item">
+            <div class="class-dot" style="background:var(--g4)"></div>
+            <div class="class-info">
+              <div class="class-name">DBMS Quiz</div>
+              <div class="class-time">10 Apr 2026 · 15 questions · 20 min</div>
+            </div><span class="class-status"
+              style="background:var(--g1);color:var(--g7);font-weight:700;padding:3px 10px;border-radius:20px;font-size:11px">78%</span>
+          </div>
+          <div class="class-item">
+            <div class="class-dot" style="background:var(--g3)"></div>
+            <div class="class-info">
+              <div class="class-name">Mathematics Quiz</div>
+              <div class="class-time">6 Apr 2026 · 15 questions · 22 min</div>
+            </div><span class="class-status"
+              style="background:var(--g1);color:var(--g7);font-weight:700;padding:3px 10px;border-radius:20px;font-size:11px">85%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz arena -->
+      <div id="assess-arena" style="display:none;max-width:700px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div id="quiz-subject-label"
+              style="font-size:13px;font-weight:700;color:var(--g5);letter-spacing:.6px;text-transform:uppercase"></div>
+            <div style="font-size:11px;color:var(--tm);margin-top:2px">Question <span id="quiz-qnum">1</span> of <span
+                id="quiz-total">15</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <div
+              style="background:var(--g1);border-radius:8px;padding:6px 14px;font-size:14px;font-weight:700;color:var(--g7)">
+              ⏱ <span id="quiz-timer">20:00</span></div>
+            <button class="action-btn" onclick="endQuiz(true)">End Quiz</button>
+          </div>
+        </div>
+        <!-- progress bar -->
+        <div class="progress-bar-wrap" style="margin-bottom:24px">
+          <div class="progress-bar" id="quiz-progress-bar" style="width:0%;transition:width .4s ease"></div>
+        </div>
+
+        <div class="dash-panel">
+          <div id="quiz-question"
+            style="font-size:17px;font-weight:600;color:var(--g8);margin-bottom:24px;line-height:1.5"></div>
+          <div id="quiz-options" style="display:grid;gap:10px"></div>
+          <div id="quiz-feedback"
+            style="display:none;margin-top:18px;padding:14px;border-radius:8px;font-size:13px;font-weight:600"></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:20px">
+            <button class="enroll-btn" id="quiz-next-btn" onclick="quizNext()" style="display:none">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result screen -->
+      <div id="assess-result" style="display:none;max-width:600px;margin:0 auto;text-align:center">
+        <div class="dash-panel" style="padding:40px">
+          <div style="font-size:60px;margin-bottom:12px" id="result-emoji">🎉</div>
+          <div style="font-size:28px;font-weight:700;color:var(--g8);margin-bottom:6px">Quiz Complete!</div>
+          <div style="font-size:15px;color:var(--tm);margin-bottom:28px" id="result-subject-label"></div>
+          <div style="font-size:64px;font-weight:700;color:var(--g6);margin-bottom:4px" id="result-pct">--%</div>
+          <div style="font-size:14px;color:var(--tm);margin-bottom:28px" id="result-score-text"></div>
+          <div id="result-breakdown"
+            style="text-align:left;margin-bottom:28px;border-top:1px solid var(--g1);padding-top:20px"></div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <button class="enroll-btn" onclick="retakeQuiz()">↩ Retake</button>
+            <button class="btn-outline"
+              onclick="document.getElementById('assess-arena').style.display='none';document.getElementById('assess-result').style.display='none';document.getElementById('assess-picker').style.display='block'">Choose
+              Another</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAMES PAGE -->
+  <div id="page-games" class="page">
+    <div class="section" style="padding-top:40px">
+      <div class="section-title">Learn Through Play</div>
+      <div class="section-h2">Fun Learning Games 🎮</div>
+      <div class="section-sub">Reinforce your knowledge with interactive games. Earn points and track your high scores!
+      </div>
+
+      <div id="games-lobby" style="display:block">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:32px">
+          <!-- Flashcard flip -->
+          <div
+            style="background:rgba(255,255,255,0.88);border:1px solid var(--g2);border-radius:var(--card-r);padding:28px;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden"
+            onclick="launchGame('flashcard')"
+            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(46,127,166,0.18)'"
+            onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div
+              style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--g3),var(--g6))">
+            </div>
+            <div style="font-size:40px;margin-bottom:12px">🃏</div>
+            <div style="font-size:18px;font-weight:700;color:var(--g8);margin-bottom:6px">Flashcard Flip</div>
+            <div style="font-size:13px;color:var(--tm);margin-bottom:14px;line-height:1.6">Flip cards to reveal formulas
+              and definitions. Test your recall across all subjects.</div>
+            <div style="display:flex;gap:8px"><span class="topic-tag">All Subjects</span><span
+                class="topic-tag">Memory</span></div>
+          </div>
+          <!-- Speed math -->
+          <div
+            style="background:rgba(255,255,255,0.88);border:1px solid var(--g2);border-radius:var(--card-r);padding:28px;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden"
+            onclick="launchGame('speedmath')"
+            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(46,127,166,0.18)'"
+            onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div
+              style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--g4),var(--g7))">
+            </div>
+            <div style="font-size:40px;margin-bottom:12px">⚡</div>
+            <div style="font-size:18px;font-weight:700;color:var(--g8);margin-bottom:6px">Speed Round</div>
+            <div style="font-size:13px;color:var(--tm);margin-bottom:14px;line-height:1.6">Answer 10 rapid-fire
+              questions in 60 seconds. How many can you get right?</div>
+            <div style="display:flex;gap:8px"><span class="topic-tag">Mixed</span><span class="topic-tag">Timed</span>
+            </div>
+          </div>
+          <!-- Word scramble -->
+          <div
+            style="background:rgba(255,255,255,0.88);border:1px solid var(--g2);border-radius:var(--card-r);padding:28px;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden"
+            onclick="launchGame('wordjumble')"
+            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(46,127,166,0.18)'"
+            onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div
+              style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--g2),var(--g5))">
+            </div>
+            <div style="font-size:40px;margin-bottom:12px">🔤</div>
+            <div style="font-size:18px;font-weight:700;color:var(--g8);margin-bottom:6px">Word Jumble</div>
+            <div style="font-size:13px;color:var(--tm);margin-bottom:14px;line-height:1.6">Unscramble key chemistry,
+              DBMS and math terms to score points before time runs out.</div>
+            <div style="display:flex;gap:8px"><span class="topic-tag">Vocabulary</span><span
+                class="topic-tag">Fun</span></div>
+          </div>
+          <!-- True/False blitz -->
+          <div
+            style="background:rgba(255,255,255,0.88);border:1px solid var(--g2);border-radius:var(--card-r);padding:28px;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden"
+            onclick="launchGame('truefalse')"
+            onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 32px rgba(46,127,166,0.18)'"
+            onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div
+              style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#5CC8A0,var(--g5))">
+            </div>
+            <div style="font-size:40px;margin-bottom:12px">✅</div>
+            <div style="font-size:18px;font-weight:700;color:var(--g8);margin-bottom:6px">True or False Blitz</div>
+            <div style="font-size:13px;color:var(--tm);margin-bottom:14px;line-height:1.6">React fast — is this
+              formula/fact true or false? Chain correct answers for bonus streaks!</div>
+            <div style="display:flex;gap:8px"><span class="topic-tag">Reflex</span><span class="topic-tag">Streak</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="dash-panel" style="max-width:500px">
+          <div class="panel-title">🏆 Top Scores This Week</div>
+          <div style="display:grid;gap:10px;margin-top:4px">
+            <div
+              style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:linear-gradient(135deg,#FEF3CC,#FDE68A22);border-radius:8px;border:1px solid #FBBF24">
+              <span style="font-size:20px">🥇</span>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--g8)">Priya Sharma</div>
+                <div style="font-size:11px;color:var(--tm)">Speed Round</div>
+              </div><span style="font-size:15px;font-weight:700;color:var(--g7)">950 pts</span>
+            </div>
+            <div
+              style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--ice);border-radius:8px;border:1px solid var(--g2)">
+              <span style="font-size:20px">🥈</span>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--g8)">Rohit Verma</div>
+                <div style="font-size:11px;color:var(--tm)">Word Jumble</div>
+              </div><span style="font-size:15px;font-weight:700;color:var(--g7)">820 pts</span>
+            </div>
+            <div
+              style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--ice);border-radius:8px;border:1px solid var(--g2)">
+              <span style="font-size:20px">🥉</span>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--g8)">Kiran Patil</div>
+                <div style="font-size:11px;color:var(--tm)">Flashcard Flip</div>
+              </div><span style="font-size:15px;font-weight:700;color:var(--g7)">790 pts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME: Flashcard Flip -->
+      <div id="game-flashcard" style="display:none;max-width:560px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;color:var(--g7)">🃏 Flashcard Flip</div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span style="font-size:13px;color:var(--tm)">Score: <strong id="fc-score"
+                style="color:var(--g7)">0</strong></span>
+            <span style="font-size:13px;color:var(--tm)">Card <span id="fc-num">1</span>/<span
+                id="fc-total">12</span></span>
+            <button class="action-btn" onclick="exitGame('flashcard')">✕ Exit</button>
+          </div>
+        </div>
+        <div id="fc-card" onclick="flipCard()" style="cursor:pointer;perspective:800px;margin-bottom:20px">
+          <div id="fc-inner"
+            style="position:relative;height:220px;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1)">
+            <div
+              style="position:absolute;inset:0;background:linear-gradient(135deg,var(--g1),var(--frost));border:2px solid var(--g3);border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;backface-visibility:hidden;padding:24px;text-align:center">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--g5)">
+                TAP TO REVEAL</div>
+              <div id="fc-front" style="font-size:20px;font-weight:700;color:var(--g8);line-height:1.4"></div>
+            </div>
+            <div
+              style="position:absolute;inset:0;background:linear-gradient(135deg,var(--g6),var(--g8));border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;backface-visibility:hidden;transform:rotateY(180deg);padding:24px;text-align:center">
+              <div
+                style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,0.6)">
+                ANSWER</div>
+              <div id="fc-back" style="font-size:16px;color:#fff;line-height:1.5"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center" id="fc-btns" style="display:none">
+          <button onclick="fcVote(false)"
+            style="flex:1;background:#FEE2E2;color:#B91C1C;border:1.5px solid #FCA5A5;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">😕
+            Still learning</button>
+          <button onclick="fcVote(true)"
+            style="flex:1;background:#D6F0E8;color:#1A6B50;border:1.5px solid #6EE7B7;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">✅
+            Got it!</button>
+        </div>
+        <div style="text-align:center;margin-top:10px">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="fc-progress" style="width:0%;transition:width .4s"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME: Speed Round -->
+      <div id="game-speedmath" style="display:none;max-width:520px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;color:var(--g7)">⚡ Speed Round</div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div
+              style="background:var(--g1);border-radius:8px;padding:6px 14px;font-size:14px;font-weight:700;color:var(--g7)">
+              ⏱ <span id="sr-timer">60</span>s</div>
+            <span style="font-size:13px;color:var(--tm)">Score: <strong id="sr-score"
+                style="color:var(--g7)">0</strong></span>
+            <button class="action-btn" onclick="exitGame('speedmath')">✕ Exit</button>
+          </div>
+        </div>
+        <div class="dash-panel" style="text-align:center">
+          <div id="sr-start-screen">
+            <div style="font-size:48px;margin-bottom:12px">⚡</div>
+            <div style="font-size:18px;font-weight:700;color:var(--g8);margin-bottom:8px">60 Second Speed Round!</div>
+            <div style="font-size:13px;color:var(--tm);margin-bottom:20px">Answer as many questions as you can in 60
+              seconds.</div>
+            <button class="enroll-btn" style="font-size:15px;padding:12px 28px"
+              onclick="startSpeedRound()">START!</button>
+          </div>
+          <div id="sr-game-screen" style="display:none">
+            <div id="sr-question"
+              style="font-size:18px;font-weight:600;color:var(--g8);margin-bottom:20px;min-height:56px"></div>
+            <div id="sr-options" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"></div>
+            <div id="sr-streak" style="font-size:12px;color:var(--g5);font-weight:700;height:18px"></div>
+          </div>
+          <div id="sr-end-screen" style="display:none">
+            <div style="font-size:48px;margin-bottom:10px" id="sr-end-emoji">🎉</div>
+            <div style="font-size:28px;font-weight:700;color:var(--g8);margin-bottom:4px">Time's up!</div>
+            <div style="font-size:14px;color:var(--tm);margin-bottom:20px">You scored <strong
+                id="sr-final-score">0</strong> points</div>
+            <button class="enroll-btn" onclick="startSpeedRound()">Play Again</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME: Word Jumble -->
+      <div id="game-wordjumble" style="display:none;max-width:480px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;color:var(--g7)">🔤 Word Jumble</div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span style="font-size:13px;color:var(--tm)">Score: <strong id="wj-score"
+                style="color:var(--g7)">0</strong></span>
+            <span style="font-size:13px;color:var(--tm)">Streak: <strong id="wj-streak"
+                style="color:var(--g6)">0🔥</strong></span>
+            <button class="action-btn" onclick="exitGame('wordjumble')">✕ Exit</button>
+          </div>
+        </div>
+        <div class="dash-panel" style="text-align:center">
+          <div
+            style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--g5);margin-bottom:12px">
+            UNSCRAMBLE THIS WORD</div>
+          <div id="wj-hint" style="font-size:12px;color:var(--tm);margin-bottom:16px;font-style:italic"></div>
+          <div id="wj-scrambled"
+            style="font-size:32px;font-weight:700;color:var(--g7);letter-spacing:6px;margin-bottom:24px;font-family:monospace">
+          </div>
+          <input id="wj-input" class="form-input" type="text" placeholder="Type your answer..."
+            style="text-align:center;font-size:16px;margin-bottom:12px"
+            onkeydown="if(event.key==='Enter')checkJumble()">
+          <div style="display:flex;gap:10px;justify-content:center">
+            <button class="enroll-btn" onclick="checkJumble()">Check ✓</button>
+            <button class="action-btn" onclick="skipJumble()">Skip →</button>
+          </div>
+          <div id="wj-feedback" style="margin-top:14px;font-size:13px;font-weight:700;height:20px"></div>
+        </div>
+      </div>
+
+      <!-- GAME: True or False Blitz -->
+      <div id="game-truefalse" style="display:none;max-width:520px;margin:0 auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;color:var(--g7)">✅ True or False Blitz</div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span style="font-size:13px;color:var(--tm)">Score: <strong id="tf-score"
+                style="color:var(--g7)">0</strong></span>
+            <span style="font-size:12px;color:var(--g6)">Streak: <strong id="tf-streak">0</strong>🔥</span>
+            <button class="action-btn" onclick="exitGame('truefalse')">✕ Exit</button>
+          </div>
+        </div>
+        <div class="dash-panel" style="text-align:center">
+          <div id="tf-start-screen">
+            <div style="font-size:48px;margin-bottom:10px">✅</div>
+            <div style="font-size:18px;font-weight:700;color:var(--g8);margin-bottom:8px">True or False Blitz</div>
+            <div style="font-size:13px;color:var(--tm);margin-bottom:6px">15 statements. React fast — lose a life for
+              wrong answers!</div>
+            <div style="font-size:13px;color:var(--g5);margin-bottom:20px">❤️❤️❤️ You have 3 lives</div>
+            <button class="enroll-btn" style="font-size:15px;padding:12px 28px" onclick="startTF()">Let's Go!</button>
+          </div>
+          <div id="tf-game-screen" style="display:none">
+            <div id="tf-lives" style="font-size:22px;margin-bottom:16px;letter-spacing:4px"></div>
+            <div
+              style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--g5);margin-bottom:10px">
+              QUESTION <span id="tf-qnum">1</span>/15</div>
+            <div id="tf-statement"
+              style="font-size:17px;font-weight:600;color:var(--g8);margin-bottom:24px;min-height:54px;line-height:1.5">
+            </div>
+            <div style="display:flex;gap:14px;justify-content:center">
+              <button onclick="answerTF(true)"
+                style="flex:1;max-width:160px;background:linear-gradient(135deg,#D1FAE5,#6EE7B7);color:#065F46;border:1.5px solid #34D399;border-radius:10px;padding:16px;font-size:18px;font-weight:700;cursor:pointer;transition:transform .1s"
+                onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform=''">✅ TRUE</button>
+              <button onclick="answerTF(false)"
+                style="flex:1;max-width:160px;background:linear-gradient(135deg,#FEE2E2,#FCA5A5);color:#991B1B;border:1.5px solid #F87171;border-radius:10px;padding:16px;font-size:18px;font-weight:700;cursor:pointer;transition:transform .1s"
+                onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform=''">❌ FALSE</button>
+            </div>
+            <div id="tf-feedback" style="margin-top:16px;font-size:13px;font-weight:700;height:20px"></div>
+          </div>
+          <div id="tf-end-screen" style="display:none">
+            <div style="font-size:48px;margin-bottom:10px" id="tf-end-emoji">🎉</div>
+            <div style="font-size:22px;font-weight:700;color:var(--g8);margin-bottom:6px">Game Over!</div>
+            <div style="font-size:15px;color:var(--tm);margin-bottom:20px">Score: <strong id="tf-final-score">0</strong>
+              points</div>
+            <button class="enroll-btn" onclick="startTF()">Play Again</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">Tutor for All</div>
+        <div class="footer-copy">© 2026 Tutor for All Platform. All rights reserved.</div>
+      </div>
+      <div class="footer-links">
+        <span class="footer-link">Privacy Policy</span>
+        <span class="footer-link">Terms of Service</span>
+        <span class="footer-link">Contact Us</span>
+        <span class="footer-link">Help Center</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  let selectedSubject = '';
+  let selectedPlan = 'pro';
+  const planPrices = { basic: '₹999/mo', pro: '₹2,499/mo', elite: '₹4,999/mo' };
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(l => {
+      const txt = l.textContent.toLowerCase();
+      const match = (id === 'home' && txt.includes('home')) || (id === 'subjects' && txt.includes('subj')) || (id === 'enroll' && txt.includes('enrol')) || (id === 'dashboard' && txt.includes('dash')) || (id === 'admin' && txt.includes('admin')) || (id === 'assessment' && txt.includes('assess')) || (id === 'games' && txt.includes('game'));
+      l.classList.toggle('active', match);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function selectSubject(s) {
+    selectedSubject = s;
+    document.querySelectorAll('.subj-opt').forEach(o => o.classList.remove('selected'));
+    const map = { Chemistry: 'opt-chem', DBMS: 'opt-dbms', Mathematics: 'opt-math' };
+    if (map[s]) document.getElementById(map[s]).classList.add('selected');
+  }
+
+  function toggleSubject(s) {
+    selectSubject(s);
+  }
+
+  function submitEnroll() {
+    const name = document.getElementById('f-name').value;
+    console.log("Hi = "+ name)
+    const phone = document.getElementById('f-phone').value;
+    console.log("Hi there = "+ phone)
+    if (!name || !phone) { showNotif('Error', 'Please fill in at least your name and phone number.'); return; }
+    const msg = document.getElementById('enroll-success');
+    msg.style.display = 'block';
+    setTimeout(() => { showPage('payment'); msg.style.display = 'none'; }, 1800);
+    showNotif('Application Submitted', 'Your enrollment form has been received!');
+  }
+
+  function selectPlan(p) {
+    selectedPlan = p;
+    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('plan-' + p).classList.add('selected');
+    document.getElementById('plan-total').textContent = planPrices[p];
+  }
+
+  function formatCard(el) {
+    let v = el.value.replace(/\D/g, '').substring(0, 16);
+    v = v.replace(/(.{4})/g, '$1 ').trim();
+    el.value = v;
+    const disp = v.length > 0 ? v.padEnd(19, '•').substring(0, 19) : '•••• •••• •••• ••••';
+    document.getElementById('card-display').textContent = disp;
+  }
+
+  function processPayment() {
+    const name = document.getElementById('pay-name').value;
+    const card = document.getElementById('pay-card').value;
+    if (!name || card.replace(/\s/g, '').length < 16) { showNotif('Payment Error', 'Please fill in complete card details.'); return; }
+    showNotif('Payment Successful ✓', 'Welcome to Tutor for All! Redirecting to dashboard...');
+    setTimeout(() => showPage('dashboard'), 2200);
+  }
+
+  function setDashTab(el, tabId) {
+    document.querySelectorAll('.dash-nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    ['tab-overview', 'tab-classes', 'tab-videos', 'tab-materials', 'tab-progress', 'tab-chat'].forEach(t => {
+      const el = document.getElementById(t);
+      if (el) el.style.display = t === tabId ? 'block' : 'none';
+    });
+  }
+
+  function setAdminTab(el, tabId) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    ['at-students', 'at-tutors', 'at-content', 'at-payments'].forEach(t => {
+      const el = document.getElementById(t);
+      if (el) el.style.display = t === tabId ? 'block' : 'none';
+    });
+  }
+
+  function sendChat() {
+    const inp = document.getElementById('chat-input');
+    const msg = inp.value.trim();
+    if (!msg) return;
+    const msgs = document.getElementById('chat-msgs');
+    msgs.innerHTML += `<div class="chat-bubble user"><div class="chat-from">You</div><div class="chat-bubble-inner">${msg}</div></div>`;
+    inp.value = '';
+    msgs.scrollTop = msgs.scrollHeight;
+    setTimeout(() => {
+      msgs.innerHTML += `<div class="chat-bubble support"><div class="chat-from">Support Team</div><div class="chat-bubble-inner">Thanks for reaching out! A tutor will respond shortly. Meanwhile, check the relevant video in Training Videos.</div></div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 1200);
+  }
+
+  let notifTimer;
+  function showNotif(title, body) {
+    clearTimeout(notifTimer);
+    document.getElementById('notif-title').textContent = title;
+    document.getElementById('notif-body').textContent = body;
+    const n = document.getElementById('notif');
+    n.classList.add('show');
+    notifTimer = setTimeout(() => n.classList.remove('show'), 3500);
+  }
+
+  setTimeout(() => showNotif('Welcome!', 'Explore subjects or apply for classes to get started.'), 1000);
+
+  /* ══════════════════════════════════
+     ASSESSMENT ENGINE
+     ══════════════════════════════════ */
+  const QUIZ_BANK = {
+    chemistry: [
+      { q: 'What is the pH of a neutral solution at 25°C?', o: ['0', '7', '14', '3.5'], a: 1, exp: 'pH 7 is neutral; below 7 is acidic, above 7 is basic.' },
+      { q: 'Which gas is produced when zinc reacts with dilute HCl?', o: ['O₂', 'CO₂', 'H₂', 'N₂'], a: 2, exp: 'Zn + 2HCl → ZnCl₂ + H₂↑ (hydrogen gas)' },
+      { q: 'What does Le Chatelier\'s Principle state?', o: ['Equilibrium never shifts', 'A system at equilibrium shifts to counteract disturbances', 'Temperature has no effect on equilibrium', 'Products always exceed reactants'], a: 1, exp: 'The equilibrium shifts to oppose the applied change.' },
+      { q: 'The IUPAC name of CH₃CHO is:', o: ['Methanol', 'Ethanol', 'Ethanal', 'Methanal'], a: 2, exp: 'CH₃CHO is acetaldehyde, IUPAC name: Ethanal.' },
+      { q: 'Which quantum number determines the shape of an orbital?', o: ['Principal (n)', 'Azimuthal (l)', 'Magnetic (m)', 'Spin (s)'], a: 1, exp: 'The azimuthal (angular momentum) quantum number l determines orbital shape.' },
+      { q: 'Grignard reagent is prepared in which solvent?', o: ['Water', 'Ethanol', 'Dry ether', 'Benzene'], a: 2, exp: 'Grignard reagents react violently with water; dry ether is required.' },
+      { q: 'pH of 0.01 M HCl solution is:', o: ['2', '1', '0.01', '12'], a: 0, exp: 'pH = −log[H⁺] = −log(0.01) = 2.' },
+      { q: 'Benzene follows which rule for aromaticity?', o: ['Octet rule', 'Hückel\'s rule (4n+2 π)', 'Pauli exclusion', 'Aufbau'], a: 1, exp: 'Hückel\'s rule: (4n+2) π electrons for aromaticity; benzene has 6.' },
+      { q: 'Which catalyst is used in Haber process?', o: ['Platinum', 'Iron', 'Vanadium pentoxide', 'Nickel'], a: 1, exp: 'Iron catalyst with K₂O and Al₂O₃ promoters is used in the Haber process.' },
+      { q: 'PV = nRT is:', o: ['Boyle\'s Law', 'Charles\' Law', 'Ideal Gas Law', 'Gay-Lussac\'s Law'], a: 2, exp: 'The ideal gas equation combines Boyle\'s, Charles\' and Avogadro\'s laws.' },
+      { q: 'Hybridisation of carbon in CH₄:', o: ['sp', 'sp²', 'sp³', 'sp³d'], a: 2, exp: 'Methane has 4 identical σ bonds → sp³ hybridisation.' },
+      { q: 'Which is a Lewis acid?', o: ['NaOH', 'NH₃', 'BF₃', 'H₂O'], a: 2, exp: 'BF₃ has an empty p orbital and accepts electron pairs — a Lewis acid.' },
+      { q: 'EMF of a galvanic cell is positive when ΔG is:', o: ['Zero', 'Positive', 'Negative', 'Undefined'], a: 2, exp: 'ΔG = −nFE; positive EMF → negative ΔG → spontaneous reaction.' },
+      { q: 'Which reaction type is SN2?', o: ['Addition', 'Elimination', 'Nucleophilic substitution', 'Electrophilic addition'], a: 2, exp: 'SN2 = bimolecular nucleophilic substitution with Walden inversion.' },
+      { q: 'Normality is defined as:', o: ['Moles/L', 'Equivalents/L', 'Grams/L', 'Moles/kg'], a: 1, exp: 'Normality = gram equivalents of solute per litre of solution.' },
+    ],
+    dbms: [
+      { q: 'Full form of ACID in DBMS:', o: ['Atomicity Consistency Isolation Durability', 'Abstract Consistent Indexed Data', 'Atomic Concurrent Independent Database', 'None'], a: 0, exp: 'ACID ensures reliable database transactions.' },
+      { q: 'Which normal form eliminates partial dependencies?', o: ['1NF', '2NF', '3NF', 'BCNF'], a: 1, exp: '2NF removes partial dependencies on a composite primary key.' },
+      { q: 'Which SQL clause is used to filter grouped rows?', o: ['WHERE', 'HAVING', 'GROUP BY', 'ORDER BY'], a: 1, exp: 'HAVING filters results after GROUP BY; WHERE filters before grouping.' },
+      { q: 'A foreign key enforces:', o: ['Uniqueness', 'Referential integrity', 'Atomicity', 'Domain constraint'], a: 1, exp: 'Foreign keys maintain referential integrity between related tables.' },
+      { q: 'Which join returns all rows from both tables?', o: ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL OUTER JOIN'], a: 3, exp: 'FULL OUTER JOIN returns matched + unmatched rows from both tables.' },
+      { q: 'B+ Tree is used in databases for:', o: ['Sorting records', 'Quick indexing/search in O(log n)', 'Encrypting data', 'Normalization'], a: 1, exp: 'B+ Trees provide efficient O(log n) search and are common in DB indexes.' },
+      { q: 'Which command undoes uncommitted transactions?', o: ['COMMIT', 'ROLLBACK', 'SAVEPOINT', 'DROP'], a: 1, exp: 'ROLLBACK reverts all changes made in the current transaction.' },
+      { q: 'ER model stands for:', o: ['Entity Record', 'Entity Relationship', 'Extended Relational', 'Exact Record'], a: 1, exp: 'ER (Entity-Relationship) diagrams model database structure visually.' },
+      { q: 'Which of these is a DDL command?', o: ['SELECT', 'INSERT', 'CREATE', 'UPDATE'], a: 2, exp: 'DDL (Data Definition Language) includes CREATE, ALTER, DROP.' },
+      { q: 'In relational algebra, σ denotes:', o: ['Projection', 'Selection', 'Join', 'Division'], a: 1, exp: 'σ (sigma) is the selection operator — filters rows by condition.' },
+      { q: 'Which key uniquely identifies each row?', o: ['Foreign key', 'Candidate key', 'Primary key', 'Super key'], a: 2, exp: 'A primary key uniquely identifies each row and cannot be NULL.' },
+      { q: 'Deadlock occurs when:', o: ['A query is too slow', 'Two transactions wait on each other indefinitely', 'A table is dropped', 'Index is missing'], a: 1, exp: 'Deadlock: T1 waits for T2, and T2 waits for T1 — circular wait.' },
+      { q: 'What does CREATE INDEX do?', o: ['Creates a new table', 'Creates a new database', 'Speeds up data retrieval', 'Deletes duplicate records'], a: 2, exp: 'Indexes speed up SELECT queries by reducing the data scanned.' },
+      { q: 'Which aggregate function counts non-NULL values?', o: ['SUM()', 'AVG()', 'COUNT()', 'MAX()'], a: 2, exp: 'COUNT(column) counts non-NULL values; COUNT(*) counts all rows.' },
+      { q: '3NF requires that every non-key attribute is:', o: ['Dependent on any attribute', 'Dependent only on the primary key (no transitive dependency)', 'Null', 'A foreign key'], a: 1, exp: '3NF removes transitive dependencies — only direct PK dependencies allowed.' },
+    ],
+    math: [
+      { q: '∫ eˣ dx = ?', o: ['eˣ + C', 'eˣ', 'xeˣ + C', 'e^(x+1)/(x+1)+C'], a: 0, exp: 'The integral of eˣ is eˣ + C — it is its own integral.' },
+      { q: 'd/dx [sin x] = ?', o: ['sin x', 'cos x', '−sin x', '−cos x'], a: 1, exp: 'The derivative of sin x is cos x.' },
+      { q: 'Determinant of a 2×2 matrix [[a,b],[c,d]] is:', o: ['ac−bd', 'ad−bc', 'ab−cd', 'a+d'], a: 1, exp: 'det = ad − bc for a 2×2 matrix.' },
+      { q: 'The value of lim x→0 (sin x)/x is:', o: ['0', '∞', '1', 'sin(0)'], a: 2, exp: 'A fundamental trigonometric limit: lim x→0 (sin x)/x = 1.' },
+      { q: 'Euler\'s identity eⁱᵖ + 1 = ?', o: ['2', 'eⁱᵖ', '0', 'i'], a: 2, exp: 'eⁱᵖ = −1, so eⁱᵖ + 1 = 0 — the most beautiful equation.' },
+      { q: '∑ from i=1 to n of i equals:', o: ['n²', 'n(n+1)/2', 'n(n-1)/2', 'n(n+1)'], a: 1, exp: 'Sum of first n natural numbers = n(n+1)/2.' },
+      { q: 'For a matrix A, rank(A) + nullity(A) = ?', o: ['0', 'm (number of rows)', 'n (number of columns)', 'det(A)'], a: 2, exp: 'Rank-Nullity theorem: rank(A) + nullity(A) = n (columns).' },
+      { q: 'd/dx [ln x] = ?', o: ['ln x', '1', '1/x', 'x'], a: 2, exp: 'The derivative of natural log is 1/x.' },
+      { q: '∫ cos x dx = ?', o: ['sin x + C', '−sin x + C', 'cos x + C', '−cos x + C'], a: 0, exp: '∫ cos x dx = sin x + C.' },
+      { q: 'The eigenvalue equation is:', o: ['Av = 0', 'det(A)=λ', 'Av = λv', 'A = λI'], a: 2, exp: 'Av = λv defines eigenvalues λ and eigenvectors v.' },
+      { q: '∫ xⁿ dx = ? (n ≠ −1)', o: ['nxⁿ⁻¹ + C', 'xⁿ⁺¹ + C', 'xⁿ⁺¹/(n+1) + C', 'xⁿ/n + C'], a: 2, exp: 'Power rule for integration: xⁿ⁺¹/(n+1) + C.' },
+      { q: 'Taylor series of f(x) around a is:', o: ['Σ f(a)(x−a)ⁿ', 'Σ fⁿ(a)/n! (x−a)ⁿ', 'Σ f(x)/n!', 'None of these'], a: 1, exp: 'Taylor series: Σ fⁿ(a)/n! (x−a)ⁿ centered at a.' },
+      { q: '|A × B| equals:', o: ['|A||B|cos θ', '|A|+|B|', '|A||B|sin θ', '|A|−|B|'], a: 2, exp: 'The magnitude of cross product = |A||B|sin θ.' },
+      { q: 'Tr(AB) equals:', o: ['Tr(A)Tr(B)', 'Tr(BA)', 'det(AB)', 'det(A)+det(B)'], a: 1, exp: 'Trace is cyclic: Tr(AB) = Tr(BA).' },
+      { q: '∫₀¹ x² dx = ?', o: ['1', '1/2', '1/3', '1/4'], a: 2, exp: '∫₀¹ x² dx = [x³/3]₀¹ = 1/3.' },
+    ],
+  };
+
+  // Build mixed pool
+  QUIZ_BANK.mixed = [...QUIZ_BANK.chemistry.slice(0, 7), ...QUIZ_BANK.dbms.slice(0, 7), ...QUIZ_BANK.math.slice(0, 6)].sort(() => Math.random() - .5);
+
+  let activeQuiz = { subject: '', questions: [], idx: 0, score: 0, answered: false, timer: null, timeLeft: 0 };
+  let retakeSubject = '';
+
+  function startAssessment(subj) {
+    retakeSubject = subj;
+    const pool = QUIZ_BANK[subj] || QUIZ_BANK.mixed;
+    const qs = [...pool].sort(() => Math.random() - .5).slice(0, subj === 'mixed' ? 20 : 15);
+    activeQuiz = { subject: subj, questions: qs, idx: 0, score: 0, answered: false, timer: null, timeLeft: subj === 'mixed' ? 1500 : 1200 };
+    document.getElementById('assess-picker').style.display = 'none';
+    document.getElementById('assess-result').style.display = 'none';
+    document.getElementById('assess-arena').style.display = 'block';
+    const labels = { chemistry: '⚗️ Chemistry', dbms: '🗄️ DBMS', math: '📐 Mathematics', mixed: '🎯 Mixed Assessment' };
+    document.getElementById('quiz-subject-label').textContent = labels[subj] || subj;
+    document.getElementById('quiz-total').textContent = qs.length;
+    renderQuizQ();
+    startQuizTimer();
+  }
+
+  function renderQuizQ() {
+    const q = activeQuiz.questions[activeQuiz.idx];
+    activeQuiz.answered = false;
+    document.getElementById('quiz-qnum').textContent = activeQuiz.idx + 1;
+    document.getElementById('quiz-progress-bar').style.width = (activeQuiz.idx / activeQuiz.questions.length * 100) + '%';
+    document.getElementById('quiz-question').textContent = q.q;
+    document.getElementById('quiz-feedback').style.display = 'none';
+    document.getElementById('quiz-next-btn').style.display = 'none';
+    const opts = document.getElementById('quiz-options');
+    opts.innerHTML = '';
+    q.o.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.style.cssText = 'width:100%;text-align:left;padding:12px 16px;border-radius:8px;border:1.5px solid var(--g2);background:var(--ice);font-size:14px;color:var(--t1);cursor:pointer;transition:all .15s;font-family:inherit';
+      btn.onmouseover = () => { if (!activeQuiz.answered) btn.style.background = 'var(--frost)' };
+      btn.onmouseout = () => { if (!activeQuiz.answered && btn.dataset.state !== 'selected') btn.style.background = 'var(--ice)' };
+      btn.onclick = () => selectQuizAnswer(i, btn);
+      opts.appendChild(btn);
+    });
+  }
+
+  function selectQuizAnswer(i, btn) {
+    if (activeQuiz.answered) return;
+    activeQuiz.answered = true;
+    const q = activeQuiz.questions[activeQuiz.idx];
+    const correct = (i === q.a);
+    if (correct) activeQuiz.score++;
+    const allBtns = document.getElementById('quiz-options').children;
+    Array.from(allBtns).forEach((b, idx) => {
+      b.style.cursor = 'default';
+      if (idx === q.a) { b.style.background = '#D1FAE5'; b.style.borderColor = '#34D399'; b.style.color = '#065F46'; }
+      else if (idx === i && !correct) { b.style.background = '#FEE2E2'; b.style.borderColor = '#F87171'; b.style.color = '#991B1B'; }
+    });
+    const fb = document.getElementById('quiz-feedback');
+    fb.style.display = 'block';
+    fb.style.background = correct ? '#D1FAE5' : '#FEE2E2';
+    fb.style.color = correct ? '#065F46' : '#991B1B';
+    fb.textContent = (correct ? '✅ Correct! ' : '❌ Wrong. ') + q.exp;
+    document.getElementById('quiz-next-btn').style.display = 'block';
+  }
+
+  function quizNext() {
+    activeQuiz.idx++;
+    if (activeQuiz.idx >= activeQuiz.questions.length) { endQuiz(false); return; }
+    renderQuizQ();
+  }
+
+  function startQuizTimer() {
+    clearInterval(activeQuiz.timer);
+    activeQuiz.timer = setInterval(() => {
+      activeQuiz.timeLeft--;
+      const m = Math.floor(activeQuiz.timeLeft / 60), s = activeQuiz.timeLeft % 60;
+      document.getElementById('quiz-timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      if (activeQuiz.timeLeft <= 0) { clearInterval(activeQuiz.timer); endQuiz(false); }
+    }, 1000);
+  }
+
+  function endQuiz(manual) {
+    clearInterval(activeQuiz.timer);
+    const total = activeQuiz.questions.length, sc = activeQuiz.score;
+    const pct = Math.round(sc / total * 100);
+    document.getElementById('assess-arena').style.display = 'none';
+    document.getElementById('assess-result').style.display = 'block';
+    const labels = { chemistry: '⚗️ Chemistry Quiz', dbms: '🗄️ DBMS Quiz', math: '📐 Mathematics Quiz', mixed: '🎯 Mixed Assessment' };
+    document.getElementById('result-subject-label').textContent = labels[activeQuiz.subject] || 'Quiz';
+    document.getElementById('result-pct').textContent = pct + '%';
+    document.getElementById('result-score-text').textContent = `${sc} out of ${total} correct`;
+    document.getElementById('result-emoji').textContent = pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '💪';
+    const breakdown = document.getElementById('result-breakdown');
+    breakdown.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--g8);margin-bottom:10px">Your Answers:</div>';
+    activeQuiz.questions.slice(0, activeQuiz.idx + (manual && activeQuiz.answered ? 1 : 0)).forEach((q, i) => {
+      const wasCorrect = (activeQuiz.score > i);// approximation
+      breakdown.innerHTML += `<div style="font-size:12px;color:var(--tm);margin-bottom:4px;padding:6px 10px;border-radius:6px;background:var(--ice)">Q${i + 1}: ${q.q.substring(0, 50)}...</div>`;
+    });
+    showNotif('Quiz Complete!', `You scored ${pct}% on the ${labels[activeQuiz.subject]} quiz!`);
+  }
+
+  function retakeQuiz() { startAssessment(retakeSubject); }
+
+  /* ══════════════════════════════════
+     FLASHCARD GAME
+     ══════════════════════════════════ */
+  const FLASHCARDS = [
+    { front: 'pH = ?', back: 'pH = −log[H⁺]', subj: 'Chemistry' },
+    { front: 'PV = ?', back: 'PV = nRT (Ideal Gas Law)', subj: 'Chemistry' },
+    { front: 'ΔG = ?', back: 'ΔG = ΔH − TΔS', subj: 'Chemistry' },
+    { front: 'Hückel\'s Rule', back: '(4n+2) π electrons for aromaticity', subj: 'Chemistry' },
+    { front: '∫ eˣ dx', back: 'eˣ + C', subj: 'Mathematics' },
+    { front: 'd/dx [sin x]', back: 'cos x', subj: 'Mathematics' },
+    { front: 'det of [[a,b],[c,d]]', back: 'ad − bc', subj: 'Mathematics' },
+    { front: 'Rank-Nullity Theorem', back: 'rank(A) + nullity(A) = n', subj: 'Mathematics' },
+    { front: 'ACID stands for...', back: 'Atomicity, Consistency, Isolation, Durability', subj: 'DBMS' },
+    { front: '2NF removes...', back: 'Partial dependencies on composite PK', subj: 'DBMS' },
+    { front: 'HAVING vs WHERE', back: 'WHERE filters rows; HAVING filters grouped rows', subj: 'DBMS' },
+    { front: 'Deadlock', back: 'Two transactions wait on each other forever', subj: 'DBMS' },
+  ];
+  let fcDeck = [], fcIdx = 0, fcFlipped = false, fcCorrect = 0;
+
+  function launchGame(g) {
+    document.getElementById('games-lobby').style.display = 'none';
+    ['flashcard', 'speedmath', 'wordjumble', 'truefalse'].forEach(id => document.getElementById('game-' + id).style.display = 'none');
+    document.getElementById('game-' + g).style.display = 'block';
+    if (g === 'flashcard') initFlashcard();
+    if (g === 'wordjumble') initJumble();
+    if (g === 'truefalse') { document.getElementById('tf-start-screen').style.display = 'block'; document.getElementById('tf-game-screen').style.display = 'none'; document.getElementById('tf-end-screen').style.display = 'none'; }
+    if (g === 'speedmath') { document.getElementById('sr-start-screen').style.display = 'block'; document.getElementById('sr-game-screen').style.display = 'none'; document.getElementById('sr-end-screen').style.display = 'none'; }
+  }
+
+  function exitGame(g) {
+    document.getElementById('game-' + g).style.display = 'none';
+    document.getElementById('games-lobby').style.display = 'block';
+    clearInterval(srTimer); clearTimeout(tfTimer);
+  }
+
+  function initFlashcard() {
+    fcDeck = [...FLASHCARDS].sort(() => Math.random() - .5);
+    fcIdx = 0; fcCorrect = 0;
+    document.getElementById('fc-score').textContent = '0';
+    document.getElementById('fc-total').textContent = fcDeck.length;
+    document.getElementById('fc-btns').style.display = 'none';
+    showFCCard();
+  }
+
+  function showFCCard() {
+    if (fcIdx >= fcDeck.length) { showNotif('Flashcards Done!', 'You scored ' + fcCorrect + '/' + fcDeck.length); exitGame('flashcard'); return; }
+    fcFlipped = false;
+    document.getElementById('fc-inner').style.transform = 'rotateY(0deg)';
+    document.getElementById('fc-front').textContent = fcDeck[fcIdx].front;
+    document.getElementById('fc-back').textContent = fcDeck[fcIdx].back;
+    document.getElementById('fc-num').textContent = fcIdx + 1;
+    document.getElementById('fc-progress').style.width = (fcIdx / fcDeck.length * 100) + '%';
+    document.getElementById('fc-btns').style.display = 'none';
+  }
+
+  function flipCard() {
+    if (fcFlipped) return;
+    fcFlipped = true;
+    document.getElementById('fc-inner').style.transform = 'rotateY(180deg)';
+    setTimeout(() => document.getElementById('fc-btns').style.display = 'flex', 500);
+  }
+
+  function fcVote(knew) {
+    if (knew) { fcCorrect++; document.getElementById('fc-score').textContent = fcCorrect; }
+    fcIdx++;
+    showFCCard();
+  }
+
+  /* ══════════════════════════════════
+     SPEED ROUND GAME
+     ══════════════════════════════════ */
+  const SR_QUESTIONS = [
+    { q: 'pH of pure water at 25°C?', o: ['7', '14', '0', '1'], a: 0 },
+    { q: '∫ eˣ dx = ?', o: ['eˣ+C', 'xe^x', 'e^(x+1)', '1/eˣ'], a: 0 },
+    { q: 'SELECT * FROM tbl WHERE ... filters on:', o: ['Grouped rows', 'All rows', 'Columns', 'Indexes'], a: 1 },
+    { q: 'Hydrogen gas symbol:', o: ['He', 'H₂', 'H₃', 'Hg'], a: 1 },
+    { q: 'd/dx [cos x] = ?', o: ['sin x', 'cos x', '−sin x', '−cos x'], a: 3 },
+    { q: 'Full form of SQL:', o: ['Structured Query Language', 'Simple Query Language', 'Standard Query Logic', 'Sequential Query Language'], a: 0 },
+    { q: 'Benzene formula:', o: ['C₅H₆', 'C₆H₁₂', 'C₆H₆', 'C₆H₅'], a: 2 },
+    { q: 'det([[1,2],[3,4]]) = ?', o: ['10', '−2', '2', '−10'], a: 1 },
+    { q: 'JOIN that returns only matched rows:', o: ['FULL OUTER', 'LEFT', 'INNER', 'CROSS'], a: 2 },
+    { q: 'Ideal Gas Law:', o: ['PV=nT', 'PV=nRT', 'P=nRT', 'PVn=RT'], a: 1 },
+    { q: 'lim x→0 (sin x)/x = ?', o: ['0', '∞', '1', '−1'], a: 2 },
+    { q: 'ACID: D stands for?', o: ['Data', 'Distributed', 'Durability', 'Design'], a: 2 },
+    { q: 'Aufbau principle relates to:', o: ['Bond angles', 'Electron filling order', 'Reaction rates', 'pH'], a: 1 },
+    { q: '∑ i from 1 to n = ?', o: ['n²', 'n(n+1)/2', 'n!', '2n'], a: 1 },
+    { q: 'PRIMARY KEY can be NULL?', o: ['Yes', 'No', 'Only in 3NF', 'Depends on DBMS'], a: 1 },
+  ];
+  let srTimer = null, srTimeLeft = 60, srIdx = 0, srScore = 0, srStreak = 0;
+
+  function startSpeedRound() {
+    clearInterval(srTimer);
+    srTimeLeft = 60; srIdx = 0; srScore = 0; srStreak = 0;
+    const pool = [...SR_QUESTIONS].sort(() => Math.random() - .5);
+    document.getElementById('sr-start-screen').style.display = 'none';
+    document.getElementById('sr-end-screen').style.display = 'none';
+    document.getElementById('sr-game-screen').style.display = 'block';
+    document.getElementById('sr-score').textContent = '0';
+    window._srPool = pool; window._srIdx = 0;
+    renderSRQ();
+    srTimer = setInterval(() => {
+      srTimeLeft--;
+      document.getElementById('sr-timer').textContent = srTimeLeft;
+      if (srTimeLeft <= 0) { clearInterval(srTimer); endSpeedRound(); }
+    }, 1000);
+  }
+
+  function renderSRQ() {
+    const q = window._srPool[window._srIdx % window._srPool.length];
+    document.getElementById('sr-question').textContent = q.q;
+    const opts = document.getElementById('sr-options');
+    opts.innerHTML = '';
+    q.o.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.style.cssText = 'padding:10px;border-radius:8px;border:1.5px solid var(--g2);background:var(--ice);font-size:13px;color:var(--t1);cursor:pointer;transition:background .1s;font-family:inherit';
+      btn.onclick = () => answerSR(i === q.a, btn, opts);
+      opts.appendChild(btn);
+    });
+    document.getElementById('sr-streak').textContent = srStreak >= 3 ? `🔥 ${srStreak} streak!` : '';
+  }
+
+  function answerSR(correct, btn, opts) {
+    Array.from(opts.children).forEach(b => b.onclick = null);
+    btn.style.background = correct ? '#D1FAE5' : '#FEE2E2';
+    btn.style.borderColor = correct ? '#34D399' : '#F87171';
+    if (correct) { srStreak++; srScore += 10 + (srStreak > 2 ? 5 : 0); }
+    else srStreak = 0;
+    document.getElementById('sr-score').textContent = srScore;
+    document.getElementById('sr-streak').textContent = srStreak >= 3 ? `🔥 ${srStreak} streak!` : '';
+    window._srIdx++;
+    setTimeout(renderSRQ, 400);
+  }
+
+  function endSpeedRound() {
+    document.getElementById('sr-game-screen').style.display = 'none';
+    document.getElementById('sr-end-screen').style.display = 'block';
+    document.getElementById('sr-final-score').textContent = srScore;
+    document.getElementById('sr-end-emoji').textContent = srScore >= 100 ? '🏆' : srScore >= 60 ? '🎉' : '💪';
+    showNotif('Speed Round Done!', 'You scored ' + srScore + ' points!');
+  }
+
+  /* ══════════════════════════════════
+     WORD JUMBLE GAME
+     ══════════════════════════════════ */
+  const JUMBLE_WORDS = [
+    { word: 'INTEGRATION', hint: 'Calculus operation finding area under a curve', subj: 'Maths' },
+    { word: 'NORMALIZATION', hint: 'Process of organizing DB to reduce redundancy', subj: 'DBMS' },
+    { word: 'BENZENE', hint: 'Aromatic compound C₆H₆', subj: 'Chemistry' },
+    { word: 'EIGENVALUE', hint: 'Scalar λ in the equation Av = λv', subj: 'Maths' },
+    { word: 'TRANSACTION', hint: 'Unit of DB work that must be ACID-compliant', subj: 'DBMS' },
+    { word: 'CATALYST', hint: 'Speeds up a reaction without being consumed', subj: 'Chemistry' },
+    { word: 'DETERMINANT', hint: 'Scalar value from a square matrix', subj: 'Maths' },
+    { word: 'DEADLOCK', hint: 'Circular wait between DB transactions', subj: 'DBMS' },
+    { word: 'ELECTROLYSIS', hint: 'Chemical decomposition using electric current', subj: 'Chemistry' },
+    { word: 'DERIVATIVE', hint: 'Rate of change of a function', subj: 'Maths' },
+  ];
+  let wjIdx = 0, wjScore = 0, wjStreak = 0, wjDeck = [];
+
+  function scramble(word) {
+    const arr = word.split('');
+    for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[arr[i], arr[j]] = [arr[j], arr[i]]; }
+    return arr.join('');
+  }
+
+  function initJumble() {
+    wjDeck = [...JUMBLE_WORDS].sort(() => Math.random() - .5);
+    wjIdx = 0; wjScore = 0; wjStreak = 0;
+    document.getElementById('wj-score').textContent = '0';
+    document.getElementById('wj-streak').textContent = '0🔥';
+    showJumbleWord();
+  }
+
+  function showJumbleWord() {
+    if (wjIdx >= wjDeck.length) { showNotif('Word Jumble Complete!', 'Final score: ' + wjScore); wjIdx = 0; }
+    const item = wjDeck[wjIdx];
+    let sc = scramble(item.word);
+    while (sc === item.word) sc = scramble(item.word);
+    document.getElementById('wj-scrambled').textContent = sc;
+    document.getElementById('wj-hint').textContent = 'Hint: ' + item.hint + ' (' + item.subj + ')';
+    document.getElementById('wj-input').value = '';
+    document.getElementById('wj-feedback').textContent = '';
+    document.getElementById('wj-input').focus();
+  }
+
+  function checkJumble() {
+    const ans = document.getElementById('wj-input').value.trim().toUpperCase();
+    const correct = wjDeck[wjIdx].word;
+    const fb = document.getElementById('wj-feedback');
+    if (ans === correct) {
+      wjStreak++; wjScore += 100 + (wjStreak > 1 ? wjStreak * 10 : 0);
+      fb.style.color = '#1A6B50'; fb.textContent = '✅ Correct! +' + (100 + (wjStreak > 1 ? wjStreak * 10 : 0)) + ' pts';
+      document.getElementById('wj-score').textContent = wjScore;
+      document.getElementById('wj-streak').textContent = wjStreak + '🔥';
+      wjIdx++; setTimeout(showJumbleWord, 900);
+    } else {
+      wjStreak = 0;
+      fb.style.color = '#991B1B'; fb.textContent = '❌ Not quite, try again!';
+      document.getElementById('wj-streak').textContent = '0🔥';
+    }
+  }
+
+  function skipJumble() {
+    const fb = document.getElementById('wj-feedback');
+    fb.style.color = 'var(--g6)'; fb.textContent = 'Answer: ' + wjDeck[wjIdx].word;
+    wjStreak = 0; document.getElementById('wj-streak').textContent = '0🔥';
+    wjIdx++; setTimeout(showJumbleWord, 1200);
+  }
+
+  /* ══════════════════════════════════
+     TRUE OR FALSE BLITZ
+     ══════════════════════════════════ */
+  const TF_STATEMENTS = [
+    { s: 'pH 7 is considered neutral at 25°C.', a: true },
+    { s: '∫ sin x dx = cos x + C', a: false },
+    { s: 'ACID stands for: Atomicity, Consistency, Isolation, Durability.', a: true },
+    { s: 'In DBMS, WHERE clause filters after GROUP BY.', a: false },
+    { s: 'Benzene has the molecular formula C₆H₆.', a: true },
+    { s: 'The determinant of an identity matrix is 0.', a: false },
+    { s: 'B+ Trees provide O(log n) lookup in databases.', a: true },
+    { s: 'Grignard reagent can be prepared in water.', a: false },
+    { s: 'd/dx [ln x] = 1/x', a: true },
+    { s: 'A PRIMARY KEY can contain NULL values.', a: false },
+    { s: 'PV = nRT is the Ideal Gas equation.', a: true },
+    { s: '3NF removes partial dependencies.', a: false },
+    { s: 'Tr(AB) = Tr(BA) for any matrices A and B.', a: true },
+    { s: 'ROLLBACK saves all uncommitted changes permanently.', a: false },
+    { s: 'lim x→0 (sin x)/x = 1', a: true },
+  ];
+  let tfDeck = [], tfIdx = 0, tfScore = 0, tfStreak = 0, tfLives = 3, tfTimer = null;
+
+  function startTF() {
+    clearTimeout(tfTimer);
+    tfDeck = [...TF_STATEMENTS].sort(() => Math.random() - .5);
+    tfIdx = 0; tfScore = 0; tfStreak = 0; tfLives = 3;
+    document.getElementById('tf-start-screen').style.display = 'none';
+    document.getElementById('tf-end-screen').style.display = 'none';
+    document.getElementById('tf-game-screen').style.display = 'block';
+    document.getElementById('tf-score').textContent = '0';
+    document.getElementById('tf-streak').textContent = '0';
+    renderTF();
+  }
+
+  function renderTF() {
+    if (tfIdx >= tfDeck.length || tfLives <= 0) { endTF(); return; }
+    document.getElementById('tf-lives').textContent = '❤️'.repeat(tfLives) + '🖤'.repeat(3 - tfLives);
+    document.getElementById('tf-qnum').textContent = tfIdx + 1;
+    document.getElementById('tf-statement').textContent = tfDeck[tfIdx].s;
+    document.getElementById('tf-feedback').textContent = '';
+  }
+
+  function answerTF(userSays) {
+    const correct = (userSays === tfDeck[tfIdx].a);
+    const fb = document.getElementById('tf-feedback');
+    if (correct) {
+      tfStreak++; tfScore += 50 + (tfStreak > 2 ? tfStreak * 10 : 0);
+      fb.style.color = '#1A6B50'; fb.textContent = '✅ Correct! +' + (50 + (tfStreak > 2 ? tfStreak * 10 : 0)) + ' pts';
+    } else {
+      tfLives--; tfStreak = 0;
+      fb.style.color = '#991B1B'; fb.textContent = '❌ Wrong! Answer was: ' + (tfDeck[tfIdx].a ? 'TRUE' : 'FALSE');
+    }
+    document.getElementById('tf-score').textContent = tfScore;
+    document.getElementById('tf-streak').textContent = tfStreak;
+    tfIdx++;
+    if (tfLives <= 0) { setTimeout(endTF, 1000); return; }
+    tfTimer = setTimeout(renderTF, 1100);
+  }
+
+  function endTF() {
+    document.getElementById('tf-game-screen').style.display = 'none';
+    document.getElementById('tf-end-screen').style.display = 'block';
+    document.getElementById('tf-final-score').textContent = tfScore;
+    document.getElementById('tf-end-emoji').textContent = tfScore >= 400 ? '🏆' : tfScore >= 200 ? '🎉' : '💪';
+    showNotif('True/False Done!', 'You scored ' + tfScore + ' points!');
+  }
+
+  /* ══════════════════════════════════
+     LANDING PAGE LOGIC
+     ══════════════════════════════════ */
+
+  function enterPlatform() {
+    const lp = document.getElementById('page-landing');
+    lp.classList.add('hide');
+    setTimeout(() => { lp.style.display = 'none'; showPage('home'); }, 800);
+  }
+
+  function enterAndGo(page) {
+    const lp = document.getElementById('page-landing');
+    lp.classList.add('hide');
+    setTimeout(() => { lp.style.display = 'none'; showPage(page); }, 800);
+  }
+
+  function landScrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    console.log("hi="+id)
+  }
+
+  /* Mouse glow */
+  document.addEventListener('mousemove', e => {
+    const g = document.getElementById('mouse-glow');
+    if (g) { g.style.left = e.clientX + 'px'; g.style.top = e.clientY + 'px'; }
+  });
+
+  /* Feature card glow */
+  function featGlow(e, el) {
+    const r = el.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+    const y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
+    el.style.setProperty('--mx', x + '%');
+    el.style.setProperty('--my', y + '%');
+  }
+
+  /* Counter animation */
+  function animateCounters() {
+    document.querySelectorAll('[data-target]').forEach(el => {
+      const target = +el.dataset.target;
+      const suffix = el.dataset.target > 100 ? '+' : '+';
+      let current = 0;
+      const step = Math.ceil(target / 60);
+      const interval = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current.toLocaleString() + (target >= 100 ? '+' : '');
+        if (current >= target) clearInterval(interval);
+      }, 20);
+    });
+  }
+  setTimeout(animateCounters, 600);
+
+  /* Landing canvas — animated constellation of formula nodes */
+  (function () {
+    const canvas = document.getElementById('land-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const LAND_FORMULAS = [
+      'E=mc²', '∫dx', '∑n', 'π', '∞', 'λ', 'ΔG', 'pH', 'SQL', 'JOIN',
+      'SELECT', 'd/dx', 'eⁱᵖ', 'F=ma', 'σ', '∇', 'det(A)', '∂f/∂x',
+      'Σ', 'H₂O', 'CH₄', '∀x', '∃y', 'lim', '∮', '∏', '≈', '≡', '⊕',
+      'PV=nRT', 'KE=½mv²', 'ΔH', 'ACID', '3NF', 'B⁺', '∈', '∉', '⊆',
+      'sin θ', 'cos θ', 'i²=-1', 'zeta(s)', 'Δ', 'Ω', 'μ', 'β', 'α', 'γ',
+    ];
+
+    class LandParticle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.text = LAND_FORMULAS[Math.floor(Math.random() * LAND_FORMULAS.length)];
+        this.size = Math.random() * 8 + 8;
+        this.opacity = Math.random() * 0.12 + 0.03;
+        this.vx = (Math.random() - .5) * 0.3;
+        this.vy = -(Math.random() * 0.4 + 0.1);
+        this.life = 1;
+        this.decay = Math.random() * 0.003 + 0.001;
+        this.color = `rgba(${[
+          [120, 180, 220], [100, 160, 200], [140, 190, 230], [80, 150, 190]
+        ][Math.floor(Math.random() * 4)].join(',')},`;
+      }
+      draw() {
+        ctx.save();
+        ctx.font = `600 ${this.size}px 'JetBrains Mono',monospace`;
+        ctx.fillStyle = this.color + (this.opacity * this.life) + ')';
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.restore();
+      }
+      update() {
+        this.x += this.vx; this.y += this.vy; this.life -= this.decay;
+        if (this.life <= 0 || this.y < -40) this.reset();
+      }
+    }
+
+    for (let i = 0; i < 80; i++) {
+      const p = new LandParticle();
+      p.y = Math.random() * H; // spread initial positions
+      particles.push(p);
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, W, H);
+      // Draw connection lines between nearby particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(124,58,237,${(1 - dist / 120) * 0.04})`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+        particles[i].update();
+        particles[i].draw();
+      }
+      if (document.getElementById('page-landing')?.style.display !== 'none') {
+        requestAnimationFrame(loop);
+      }
+    }
+    loop();
+  })();
+
+  /* ══════════════════════════════════
+     MASSIVELY EXPANDED FORMULA BG ENGINE
+     ALL WORLD SUBJECTS
+     ══════════════════════════════════ */
+  (function () {
+    const ITEMS = [
+      // ── CHEMISTRY ──
+      { t: 'CH₃COOH ⇌ CH₃COO⁻ + H⁺', c: 'chem', s: 13 }, { t: '2H₂ + O₂ → 2H₂O', c: 'chem', s: 14 },
+      { t: 'ΔG = ΔH − TΔS', c: 'chem', s: 13 }, { t: 'Ka = [H⁺][A⁻]/[HA]', c: 'chem', s: 12 },
+      { t: 'C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O', c: 'chem', s: 11 }, { t: 'Kw = [H⁺][OH⁻] = 10⁻¹⁴', c: 'chem', s: 12 },
+      { t: 'pH = −log[H⁺]', c: 'chem', s: 14 }, { t: 'PV = nRT', c: 'chem', s: 15 },
+      { t: 'E°cell = E°cathode − E°anode', c: 'chem', s: 11 }, { t: 'Benzene: C₆H₆ aromatic', c: 'chem', s: 12 },
+      { t: 'ΔHf° = Σ products − Σ reactants', c: 'chem', s: 10 }, { t: 'Aufbau: 1s²2s²2p⁶...', c: 'chem', s: 11 },
+      { t: 'Le Chatelier\'s Principle', c: 'chem', s: 13 }, { t: 'pKa = −log Ka', c: 'chem', s: 14 },
+      { t: 'Hess\'s Law: ΔH = ΣΔHsteps', c: 'chem', s: 12 }, { t: 'λmax = hc/E', c: 'chem', s: 15 },
+      { t: 'Faraday: Q = nF', c: 'chem', s: 13 }, { t: 'Boyle: P₁V₁ = P₂V₂', c: 'chem', s: 13 },
+      { t: 'Raoult\'s Law: Psoln = Xsolv·P°', c: 'chem', s: 11 }, { t: 'Henderson-Hasselbalch', c: 'chem', s: 12 },
+
+      // ── MATHEMATICS ──
+      { t: '∫ eˣ dx = eˣ + C', c: 'math', s: 15 }, { t: 'd/dx [sin x] = cos x', c: 'math', s: 14 },
+      { t: 'det(A) = ad − bc', c: 'math', s: 14 }, { t: 'Euler: eⁱᵖ + 1 = 0', c: 'math', s: 16 },
+      { t: 'lim x→0 (sin x)/x = 1', c: 'math', s: 13 }, { t: 'd/dx [ln x] = 1/x', c: 'math', s: 14 },
+      { t: '∫ cos x dx = sin x + C', c: 'math', s: 14 }, { t: 'Rank(A) + Nullity(A) = n', c: 'math', s: 12 },
+      { t: '∇²f = ∂²f/∂x² + ∂²f/∂y²', c: 'math', s: 11 }, { t: 'Eigenvalue: Av = λv', c: 'math', s: 14 },
+      { t: '∑ᵢ₌₁ⁿ i = n(n+1)/2', c: 'math', s: 13 }, { t: 'Taylor: f(x) = Σ fⁿ(a)/n!(x−a)ⁿ', c: 'math', s: 10 },
+      { t: 'Fourier: f(x) = Σ aₙcos(nx)', c: 'math', s: 11 }, { t: 'Cauchy: f(z) = ∮ f(ζ)/(ζ−z)dζ', c: 'math', s: 10 },
+      { t: 'Green\'s Theorem: ∮P dx+Q dy', c: 'math', s: 11 }, { t: 'Stokes: ∯(∇×F)·dS = ∮F·dr', c: 'math', s: 10 },
+      { t: 'Bayes: P(A|B) = P(B|A)P(A)/P(B)', c: 'math', s: 10 }, { t: 'Normal: f(x) = e^{-(x-μ)²/2σ²}', c: 'math', s: 10 },
+      { t: 'Fibonacci: Fₙ = Fₙ₋₁ + Fₙ₋₂', c: 'math', s: 11 }, { t: 'Prime: p | ab ⟹ p|a or p|b', c: 'math', s: 11 },
+
+      // ── DBMS ──
+      { t: 'SELECT * FROM students;', c: 'dbms', s: 13 }, { t: 'JOIN ON t1.id = t2.id', c: 'dbms', s: 13 },
+      { t: 'WHERE grade > 80 ORDER BY name;', c: 'dbms', s: 11 }, { t: 'GROUP BY dept HAVING COUNT(*)>5;', c: 'dbms', s: 11 },
+      { t: 'B+ Tree: O(log n) lookup', c: 'dbms', s: 12 }, { t: 'ACID: Atomicity Consistency', c: 'dbms', s: 12 },
+      { t: '1NF → 2NF → 3NF → BCNF', c: 'dbms', s: 12 }, { t: 'ER: Entity − Attribute − Relationship', c: 'dbms', s: 10 },
+      { t: 'FOREIGN KEY REFERENCES parent(id)', c: 'dbms', s: 10 }, { t: 'Deadlock: T1 waits T2; T2 waits T1', c: 'dbms', s: 10 },
+      { t: 'Hash(key) = key mod N', c: 'dbms', s: 13 }, { t: 'COMMIT; ROLLBACK; SAVEPOINT;', c: 'dbms', s: 12 },
+      { t: 'Relational Algebra: σ π ⋈ ÷', c: 'dbms', s: 12 }, { t: 'CAP Theorem: C A P pick 2', c: 'dbms', s: 12 },
+      { t: 'MapReduce: Map → Shuffle → Reduce', c: 'dbms', s: 10 },
+
+      // ── PHYSICS ──
+      { t: 'F = ma', c: 'phys', s: 16 }, { t: 'E = mc²', c: 'phys', s: 16 }, { t: 'KE = ½mv²', c: 'phys', s: 15 },
+      { t: 'v = u + at', c: 'phys', s: 15 }, { t: 's = ut + ½at²', c: 'phys', s: 14 }, { t: 'v² = u² + 2as', c: 'phys', s: 14 },
+      { t: 'F = GMm/r²', c: 'phys', s: 14 }, { t: 'P = IV = V²/R = I²R', c: 'phys', s: 13 },
+      { t: 'ε₀ = 8.854 × 10⁻¹² F/m', c: 'phys', s: 12 }, { t: '∇·E = ρ/ε₀ (Gauss)', c: 'phys', s: 13 },
+      { t: '∇×B = μ₀J (Ampere)', c: 'phys', s: 13 }, { t: 'c = λf', c: 'phys', s: 16 },
+      { t: 'E = hf (Planck)', c: 'phys', s: 14 }, { t: 'ΔxΔp ≥ ℏ/2 (Heisenberg)', c: 'phys', s: 12 },
+      { t: 'Schrödinger: iℏ ∂ψ/∂t = Ĥψ', c: 'phys', s: 11 }, { t: 'pV = NkT', c: 'phys', s: 14 },
+      { t: 'S = k ln Ω (Boltzmann)', c: 'phys', s: 13 }, { t: 'T = 2π√(L/g)', c: 'phys', s: 14 },
+
+      // ── BIOLOGY ──
+      { t: 'DNA: A-T, G-C base pairs', c: 'bio', s: 13 }, { t: 'ATP = Adenosine Triphosphate', c: 'bio', s: 12 },
+      { t: 'Photosynthesis: 6CO₂+6H₂O→C₆H₁₂O₆+6O₂', c: 'bio', s: 9 }, { t: 'Mitosis: PMAT', c: 'bio', s: 14 },
+      { t: 'Hardy-Weinberg: p² + 2pq + q² = 1', c: 'bio', s: 11 }, { t: 'RNA polymerase → mRNA', c: 'bio', s: 12 },
+      { t: 'Krebs Cycle: 2 ATP + 6 NADH', c: 'bio', s: 12 }, { t: 'Mendel: Aa × Aa → 1:2:1', c: 'bio', s: 13 },
+      { t: 'Cell membrane: phospholipid bilayer', c: 'bio', s: 10 }, { t: 'Enzyme kinetics: Vmax, Km', c: 'bio', s: 12 },
+      { t: 'VO₂ max = cardiac output × O₂ diff', c: 'bio', s: 10 }, { t: 'pH 7.4 = blood pH', c: 'bio', s: 14 },
+
+      // ── ECONOMICS ──
+      { t: 'GDP = C + I + G + (X−M)', c: 'econ', s: 13 }, { t: 'MRS = MU₁/MU₂', c: 'econ', s: 13 },
+      { t: 'Price elasticity: %ΔQ/%ΔP', c: 'econ', s: 12 }, { t: 'MC = MR → profit max', c: 'econ', s: 13 },
+      { t: 'IS-LM: Y = C + I + G', c: 'econ', s: 13 }, { t: 'Inflation: CPI = (P₁/P₀)×100', c: 'econ', s: 11 },
+      { t: 'PV = FV/(1+r)ⁿ', c: 'econ', s: 14 }, { t: 'Nash Equilibrium: Game Theory', c: 'econ', s: 12 },
+      { t: 'Cobb-Douglas: Y = AKᵅLᵝ', c: 'econ', s: 12 }, { t: 'Gini coefficient ∈ [0,1]', c: 'econ', s: 12 },
+
+      // ── COMPUTER SCIENCE ──
+      { t: 'O(n log n) merge sort', c: 'cs', s: 13 }, { t: 'P vs NP unsolved', c: 'cs', s: 14 },
+      { t: 'Big O: O(1) O(n) O(n²) O(2ⁿ)', c: 'cs', s: 11 }, { t: 'Binary search: O(log n)', c: 'cs', s: 13 },
+      { t: 'DFS/BFS graph traversal', c: 'cs', s: 13 }, { t: 'Dijkstra: shortest path O(V²)', c: 'cs', s: 11 },
+      { t: 'TCP/IP: 3-way handshake', c: 'cs', s: 12 }, { t: 'RSA: C = Mᵉ mod n', c: 'cs', s: 13 },
+      { t: 'Turing machine halting problem', c: 'cs', s: 11 }, { t: 'Git: commit→push→merge', c: 'cs', s: 13 },
+      { t: 'REST: GET POST PUT DELETE', c: 'cs', s: 12 }, { t: 'CSS: box-model margin padding', c: 'cs', s: 11 },
+
+      // ── HISTORY & HUMANITIES ──
+      { t: '1776: American Independence', c: 'hist', s: 13 }, { t: '1789: French Revolution', c: 'hist', s: 13 },
+      { t: '1945: End of WWII', c: 'hist', s: 14 }, { t: '1947: India Independence', c: 'hist', s: 13 },
+      { t: 'Magna Carta: 1215', c: 'hist', s: 14 }, { t: 'Cold War 1947–1991', c: 'hist', s: 13 },
+      { t: 'Industrial Revolution 1760s', c: 'hist', s: 12 }, { t: 'Renaissance 14th–17th century', c: 'hist', s: 11 },
+
+      // ── GEOGRAPHY ──
+      { t: 'Latitude: horizontal lines', c: 'geo', s: 13 }, { t: 'Longitude: vertical lines', c: 'geo', s: 13 },
+      { t: 'Equator: 0° latitude', c: 'geo', s: 14 }, { t: 'Tropic of Cancer: 23.5°N', c: 'geo', s: 12 },
+      { t: '7 continents 5 oceans', c: 'geo', s: 13 }, { t: 'Tectonic plates: 15 major', c: 'geo', s: 12 },
+      { t: 'Population: 8.1 billion humans', c: 'geo', s: 11 }, { t: 'Amazon: world\'s largest river', c: 'geo', s: 11 },
+
+      // ── LITERATURE & LANGUAGE ──
+      { t: 'Iambic pentameter: da-DUM ×5', c: 'lit', s: 12 }, { t: 'Metaphor vs simile', c: 'lit', s: 14 },
+      { t: 'Protagonist vs Antagonist', c: 'lit', s: 12 }, { t: 'Foreshadowing & flashback', c: 'lit', s: 12 },
+      { t: 'Shakespeare: 37 plays', c: 'lit', s: 13 }, { t: 'Verb conjugation: tense aspect', c: 'lit', s: 12 },
+      { t: 'Phoneme morpheme lexeme', c: 'lit', s: 12 }, { t: 'IPA: /θ/ /ð/ /ŋ/ /ʒ/', c: 'lit', s: 13 },
+
+      // ── PHILOSOPHY ──
+      { t: 'Cogito ergo sum — Descartes', c: 'phil', s: 12 }, { t: 'Categorical Imperative — Kant', c: 'phil', s: 11 },
+      { t: 'Utilitarianism: max happiness', c: 'phil', s: 11 }, { t: 'Plato\'s Cave allegory', c: 'phil', s: 12 },
+      { t: 'Falsifiability — Popper', c: 'phil', s: 13 }, { t: 'Occam\'s Razor: simpler wins', c: 'phil', s: 12 },
+      { t: 'Dialectic: thesis antithesis', c: 'phil', s: 11 }, { t: 'Existentialism — Sartre', c: 'phil', s: 13 },
+
+      // ── MUSIC ──
+      { t: 'C D E F G A B C — major scale', c: 'music', s: 12 }, { t: '4/4 time: 4 beats per bar', c: 'music', s: 13 },
+      { t: 'Frequency: A = 440 Hz', c: 'music', s: 13 }, { t: 'Circle of fifths: CGDAEBF', c: 'music', s: 11 },
+      { t: 'BPM: beats per minute', c: 'music', s: 14 }, { t: 'Chord: root + 3rd + 5th', c: 'music', s: 13 },
+      { t: 'Harmonic series: f, 2f, 3f...', c: 'music', s: 12 },
+
+      // ── ASTRONOMY ──
+      { t: 'c = 299,792,458 m/s', c: 'astro', s: 12 }, { t: '1 light year = 9.46×10¹⁵m', c: 'astro', s: 11 },
+      { t: 'Hubble: v = H₀d', c: 'astro', s: 14 }, { t: 'Black hole: r = 2GM/c²', c: 'astro', s: 13 },
+      { t: 'Stefan-Boltzmann: L = 4πR²σT⁴', c: 'astro', s: 10 }, { t: '8 planets in solar system', c: 'astro', s: 13 },
+      { t: 'Universe age: 13.8 billion years', c: 'astro', s: 11 },
+
+      // ── ENGINEERING ──
+      { t: 'Ohm: V = IR', c: 'eng', s: 16 }, { t: 'Kirchhoff: ΣI = 0, ΣV = 0', c: 'eng', s: 12 },
+      { t: 'Stress σ = F/A', c: 'eng', s: 15 }, { t: 'Strain ε = ΔL/L', c: 'eng', s: 15 },
+      { t: "Young's modulus E = σ/ε", c: 'eng', s: 13 }, { t: 'Power P = τω', c: 'eng', s: 15 },
+      { t: 'Bernoulli: P+½ρv²+ρgh=const', c: 'eng', s: 10 }, { t: 'Nyquist: f_sample > 2f_max', c: 'eng', s: 11 },
+      { t: 'Shannon entropy: H = −Σp log p', c: 'eng', s: 10 }, { t: 'PID controller: P+I+D', c: 'eng', s: 13 },
+    ];
+
+    const COLORS = {
+      chem: ['rgba(120,175,210,VAR)', 'rgba(100,160,200,VAR)', 'rgba(140,185,215,VAR)'],
+      math: ['rgba(110,155,185,VAR)', 'rgba(130,165,195,VAR)', 'rgba(95,145,175,VAR)'],
+      dbms: ['rgba(115,160,190,VAR)', 'rgba(105,150,180,VAR)', 'rgba(125,168,198,VAR)'],
+      phys: ['rgba(130,170,200,VAR)', 'rgba(110,155,190,VAR)', 'rgba(150,185,215,VAR)'],
+      bio: ['rgba(115,175,180,VAR)', 'rgba(100,165,170,VAR)', 'rgba(130,185,185,VAR)'],
+      econ: ['rgba(140,165,185,VAR)', 'rgba(120,155,180,VAR)', 'rgba(155,175,195,VAR)'],
+      cs: ['rgba(105,160,195,VAR)', 'rgba(125,170,205,VAR)', 'rgba(95,150,185,VAR)'],
+      hist: ['rgba(145,165,180,VAR)', 'rgba(125,150,170,VAR)', 'rgba(160,178,192,VAR)'],
+      geo: ['rgba(120,175,175,VAR)', 'rgba(105,160,162,VAR)', 'rgba(135,182,182,VAR)'],
+      lit: ['rgba(155,175,190,VAR)', 'rgba(135,158,175,VAR)', 'rgba(165,182,198,VAR)'],
+      phil: ['rgba(148,165,182,VAR)', 'rgba(130,150,170,VAR)', 'rgba(158,173,190,VAR)'],
+      music: ['rgba(120,168,195,VAR)', 'rgba(138,178,205,VAR)', 'rgba(105,158,188,VAR)'],
+      astro: ['rgba(100,155,195,VAR)', 'rgba(120,170,208,VAR)', 'rgba(85,145,185,VAR)'],
+      eng: ['rgba(115,162,192,VAR)', 'rgba(130,172,202,VAR)', 'rgba(105,155,185,VAR)'],
+    };
+
+    const bg = document.getElementById('formula-bg');
+    if (!bg) return;
+    let nodeId = 0;
+
+    function randBetween(a, b) { return a + Math.random() * (b - a); }
+    function randInt(a, b) { return Math.floor(randBetween(a, b)); }
+    function pickColor(cat) {
+      const arr = COLORS[cat] || COLORS.math;
+      return arr[randInt(0, arr.length)].replace('VAR', (0.07 + Math.random() * 0.10).toFixed(2));
+    }
+
+    function spawnNode() {
+      const item = ITEMS[randInt(0, ITEMS.length)];
+      const el = document.createElement('span');
+      el.className = 'fnode' + (Math.random() > 0.5 ? ' drift' : '');
+      el.textContent = item.t;
+      const startX = randBetween(0, 98);
+      const startY = randBetween(10, 95);
+      const dur = randBetween(14, 32);
+      const delay = randBetween(0, 8);
+      const rot = randBetween(-18, 18).toFixed(1);
+      const rot2 = randBetween(-28, 28).toFixed(1);
+      const dx = randBetween(-120, 120).toFixed(0);
+      const fs = item.s + randInt(-1, 2);
+      const peakOp = (0.07 + Math.random() * 0.10).toFixed(2);
+      const color = pickColor(item.c);
+
+      el.style.cssText = [
+        `left:${startX}vw`, `top:${startY}vh`, `font-size:${fs}px`, `color:${color}`,
+        `--r:${rot}deg`, `--r2:${rot2}deg`, `--dx:${dx}px`, `--peak-op:${peakOp}`,
+        `animation-duration:${dur.toFixed(1)}s`, `animation-delay:${delay.toFixed(2)}s`,
+      ].join(';');
+
+      el.id = 'fn' + (nodeId++);
+      bg.appendChild(el);
+      setTimeout(() => { el.remove(); }, (dur + delay + 1) * 1000);
+    }
+
+    for (let i = 0; i < 80; i++) setTimeout(spawnNode, i * 140);
+    setInterval(spawnNode, 320);
+
+    const BIG = [
+      { t: '∫', c: 'math' }, { t: 'Σ', c: 'math' }, { t: '∇', c: 'math' }, { t: '∂', c: 'math' }, { t: '∞', c: 'math' },
+      { t: 'SQL', c: 'dbms' }, { t: 'JOIN', c: 'dbms' }, { t: 'ACID', c: 'dbms' },
+      { t: 'CH₄', c: 'chem' }, { t: 'pH', c: 'chem' }, { t: 'ΔG', c: 'chem' }, { t: 'λ', c: 'chem' },
+      { t: 'E=mc²', c: 'phys' }, { t: 'F=ma', c: 'phys' }, { t: 'ℏ', c: 'phys' },
+      { t: 'DNA', c: 'bio' }, { t: 'ATP', c: 'bio' }, { t: 'RNA', c: 'bio' },
+      { t: 'GDP', c: 'econ' }, { t: 'MR=MC', c: 'econ' },
+      { t: 'O(n)', c: 'cs' }, { t: 'API', c: 'cs' }, { t: 'git', c: 'cs' },
+      { t: 'π', c: 'math' }, { t: 'e', c: 'math' }, { t: 'i²=−1', c: 'math' },
+      { t: '1947', c: 'hist' }, { t: 'ν', c: 'astro' }, { t: 'σ', c: 'eng' },
+    ];
+
+    function spawnBig() {
+      const item = BIG[randInt(0, BIG.length)];
+      const el = document.createElement('span');
+      el.className = 'fnode';
+      el.textContent = item.t;
+      const dur = randBetween(22, 45);
+      const delay = randBetween(0, 3);
+      const rot = randBetween(-25, 25).toFixed(1);
+      const peakOp = (0.025 + Math.random() * 0.04).toFixed(3);
+      const color = pickColor(item.c);
+      el.style.cssText = [
+        `left:${randBetween(2, 90)}vw`, `top:${randBetween(10, 85)}vh`,
+        `font-size:${randInt(50, 100)}px`, `color:${color}`,
+        `--r:${rot}deg`, `--r2:${rot}deg`, `--dx:0px`, `--peak-op:${peakOp}`,
+        `animation-duration:${dur.toFixed(1)}s`, `animation-delay:${delay.toFixed(2)}s`,
+        `letter-spacing:2px`,
+      ].join(';');
+      bg.appendChild(el);
+      setTimeout(() => el.remove(), (dur + delay + 1) * 1000);
+    }
+
+    for (let i = 0; i < 12; i++) setTimeout(spawnBig, i * 600);
+    setInterval(spawnBig, 1800);
+
+  })();
+</script>
